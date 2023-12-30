@@ -298,7 +298,7 @@ export const updateScene = (ticker: PIXI.Ticker) => {
     }
     if (isCurrentSceneStarted()) {
       updateFrameCount();
-      _scene.updateDelta(ticker.deltaTime);
+      _scene.updateDelta(ticker.deltaMS / 1000.0);
       _scene.update();
     }
   }

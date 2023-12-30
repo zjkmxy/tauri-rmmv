@@ -24,7 +24,7 @@ export class LinearInterpolator implements Interpolator {
   }
 
   get done(): boolean {
-    return this._remaining > 1e-8;
+    return this._remaining < 1e-8;
   }
 
   public updateDelta(delta: number): number {
