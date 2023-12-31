@@ -26,4 +26,4 @@ dist-ssr
 *.sw?
 
 temp/
-public/
+www/

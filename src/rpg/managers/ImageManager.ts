@@ -108,9 +108,12 @@ export const loadNormalBitmap = (path: string, hue: number, smooth?: boolean) =>
     bitmap = Bitmap.load(path, smooth);
     _callCreationHook(bitmap);
 
-    bitmap.addLoadListener((loadedBitmap) => {
-      loadedBitmap.rotateHue(hue);
-    });
+    // bitmap.addLoadListener((loadedBitmap) => {
+    //   loadedBitmap.rotateHue(hue);
+    // });
+    if (hue != 0) {
+      bitmap.readyPromise.then(() => bitmap?.rotateHue(hue));
+    }
     _imageCache.add(key, bitmap);
   } else if (!bitmap.isReady()) {
     bitmap.decode();
@@ -303,9 +306,12 @@ export const requestNormalBitmap = (path: string, hue: number, smooth?: boolean)
     bitmap = Bitmap.request(path, smooth);
     _callCreationHook(bitmap);
 
-    bitmap.addLoadListener((loadedBitmap) => {
-      loadedBitmap.rotateHue(hue);
-    });
+    // bitmap.addLoadListener((loadedBitmap) => {
+    //   loadedBitmap.rotateHue(hue);
+    // });
+    if (hue != 0) {
+      bitmap.readyPromise.then(() => bitmap?.rotateHue(hue));
+    }
     _imageCache.add(key, bitmap);
     _requestQueue.enqueue(key, bitmap);
   } else {

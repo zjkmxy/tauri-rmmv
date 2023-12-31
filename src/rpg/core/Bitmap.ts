@@ -3,8 +3,8 @@ import { Stage } from './Stage';
 import * as Graphics from './Graphics';
 import { CacheEntry } from './Cache';
 import { stringPadZero } from './JsExtensions';
-import * as ResourceHandler from './ResourceHandler';
 import * as Decryptor from './Decryptor';
+import * as Utils from './Utils';
 
 /**
  * Bitmap states(Bitmap._loadingState):
@@ -39,11 +39,11 @@ export enum BitmapLoadingState {
  * @param {Number} height The height of the bitmap
  */
 export class Bitmap {
-  public _image: HTMLImageElement | undefined;
+  public _image: ImageBitmap | undefined;
   protected _url = '';
   protected _paintOpacity = 255;
   protected _smooth = false;
-  protected _loadListeners: Array<(bitmap: Bitmap) => void> = [];
+  // protected _loadListeners: Array<(bitmap: Bitmap) => void> = [];
   protected _loadingState: BitmapLoadingState = BitmapLoadingState.None;
   protected _decodeAfterRequest = false;
   protected __canvas: HTMLCanvasElement | undefined;
@@ -56,7 +56,9 @@ export class Bitmap {
   protected _loader: (() => void) | undefined;
 
   //for iOS. img consumes memory. so reuse it.
-  protected static _reuseImages: Array<HTMLImageElement> = [];
+  // protected static _reuseImages: Array<HTMLImageElement> = [];
+
+  protected _readyPromise: Promise<void> = Promise.resolve();
 
   /**
    * Cache entry, for images. In all cases _url is the same as cacheEntry.key
@@ -141,7 +143,7 @@ export class Bitmap {
     this._setDirty();
   }
 
-  protected _createBaseTexture(source?: HTMLCanvasElement | HTMLImageElement) {
+  protected _createBaseTexture(source?: HTMLCanvasElement | ImageBitmap) {
     // this.__baseTexture = new PIXI.BaseTexture(source);
     // this.__baseTexture.mipmap = false;
     // this.__baseTexture.width = source.width;
@@ -165,13 +167,14 @@ export class Bitmap {
     if (!this._image) {
       return;
     }
-    this._image.src = '';
-    this._image.onload = null;
-    this._image.onerror = null;
+    // this._image.src = '';
+    // this._image.onload = null;
+    // this._image.onerror = null;
+    this._image.close();
     this._errorListener = undefined;
     this._loadListener = undefined;
 
-    Bitmap._reuseImages.push(this._image);
+    // Bitmap._reuseImages.push(this._image);
     this._image = undefined;
   }
 
@@ -219,7 +222,7 @@ export class Bitmap {
     }
 
     bitmap._decodeAfterRequest = true;
-    bitmap._requestImage(url); // noawait
+    bitmap._readyPromise = bitmap._requestImage(url); // noawait
 
     return bitmap;
   }
@@ -265,6 +268,11 @@ export class Bitmap {
   public isReady() {
     return this._loadingState === 'loaded' || this._loadingState === 'none';
   }
+
+  public get readyPromise() {
+    return this._readyPromise;
+  }
+
   /**
    * Checks whether a loading error has occurred.
    *
@@ -892,13 +900,13 @@ export class Bitmap {
    * @method addLoadListener
    * @param {Function} listner The callback function
    */
-  public addLoadListener(listner: (bitmap: Bitmap) => void) {
-    if (!this.isReady()) {
-      this._loadListeners.push(listner);
-    } else {
-      listner(this);
-    }
-  }
+  // public addLoadListener(listner: (bitmap: Bitmap) => void) {
+  //   if (!this.isReady()) {
+  //     this._loadListeners.push(listner);
+  //   } else {
+  //     listner(this);
+  //   }
+  // }
 
   /**
    * @method _makeFontNameText
@@ -942,29 +950,41 @@ export class Bitmap {
    * @method _onLoad
    * @private
    */
-  protected async _onLoad() {
-    this._image?.removeEventListener('load', this._loadListener!);
-    this._image?.removeEventListener('error', this._errorListener!);
+  // protected async _onLoad() {
+  //   this._image?.removeEventListener('load', this._loadListener!);
+  //   this._image?.removeEventListener('error', this._errorListener!);
 
+  //   this._renewCanvas();
+
+  //   if (this._loadingState === 'requesting') {
+  //     this._loadingState = BitmapLoadingState.RequestCompleted;
+  //     if (this._decodeAfterRequest) {
+  //       await this.decode();
+  //     } else {
+  //       this._loadingState = BitmapLoadingState.Purged;
+  //       this._clearImgInstance();
+  //     }
+  //   } else if (this._loadingState === 'decrypting') {
+  //     window.URL.revokeObjectURL(this._image!.src);
+  //     this._loadingState = BitmapLoadingState.DecryptCompleted;
+  //     if (this._decodeAfterRequest) {
+  //       await this.decode();
+  //     } else {
+  //       this._loadingState = BitmapLoadingState.Purged;
+  //       this._clearImgInstance();
+  //     }
+  //   }
+  // }
+  protected async _onLoad() {
+    // Recreate the corresponding canvas if necessary
     this._renewCanvas();
 
-    if (this._loadingState === 'requesting') {
-      this._loadingState = BitmapLoadingState.RequestCompleted;
-      if (this._decodeAfterRequest) {
-        await this.decode();
-      } else {
-        this._loadingState = BitmapLoadingState.Purged;
-        this._clearImgInstance();
-      }
-    } else if (this._loadingState === 'decrypting') {
-      window.URL.revokeObjectURL(this._image!.src);
-      this._loadingState = BitmapLoadingState.DecryptCompleted;
-      if (this._decodeAfterRequest) {
-        await this.decode();
-      } else {
-        this._loadingState = BitmapLoadingState.Purged;
-        this._clearImgInstance();
-      }
+    if (this._decodeAfterRequest) {
+      await this.decode();
+    } else {
+      this._loadingState = BitmapLoadingState.Purged;
+      this._clearImgInstance();
+      // Note the image is not marked as ready, but _readyPromise is resolved.
     }
   }
 
@@ -974,19 +994,21 @@ export class Bitmap {
 
       if (!this.__canvas) this._createBaseTexture(this._image);
       this._setDirty();
-      this._callLoadListeners();
+      // this._callLoadListeners();
+      // Called by _readyPromise
     } else if (this._loadingState === 'requesting' || this._loadingState === 'decrypting') {
       this._decodeAfterRequest = true;
-      if (!this._loader) {
-        this._loader = ResourceHandler.createLoader(
-          this._url,
-          () => this._requestImage(this._url),
-          () => this._onError
-        );
-        this._image?.removeEventListener('error', this._errorListener!);
-        this._errorListener = this._loader;
-        this._image?.addEventListener('error', this._errorListener!);
-      }
+      // if (!this._loader) {
+      //   this._loader = ResourceHandler.createLoader(
+      //     this._url,
+      //     () => this._requestImage(this._url),
+      //     () => this._onError
+      //   );
+      //   this._image?.removeEventListener('error', this._errorListener!);
+      //   this._errorListener = this._loader;
+      //   this._image?.addEventListener('error', this._errorListener!);
+      // }
+      await this._readyPromise; // Must be set by _requestImage
     } else if (this._loadingState === 'pending' || this._loadingState === 'purged' || this._loadingState === 'error') {
       this._decodeAfterRequest = true;
       await this._requestImage(this._url);
@@ -997,22 +1019,22 @@ export class Bitmap {
    * @method _callLoadListeners
    * @private
    */
-  protected _callLoadListeners() {
-    // while (this._loadListeners.length > 0) {
-    //   const listener = this._loadListeners.shift();
-    //   listener?.(this);
-    // }
-    this._loadListeners.forEach((listener) => listener(this));
-    this._loadListeners = [];
-  }
+  // protected _callLoadListeners() {
+  //   // while (this._loadListeners.length > 0) {
+  //   //   const listener = this._loadListeners.shift();
+  //   //   listener?.(this);
+  //   // }
+  //   this._loadListeners.forEach((listener) => listener(this));
+  //   this._loadListeners = [];
+  // }
 
   /**
    * @method _onError
    * @private
    */
   protected _onError() {
-    this._image?.removeEventListener('load', this._loadListener!);
-    this._image?.removeEventListener('error', this._errorListener!);
+    // this._image?.removeEventListener('load', this._loadListener!);
+    // this._image?.removeEventListener('error', this._errorListener!);
     this._loadingState = BitmapLoadingState.Error;
   }
 
@@ -1052,44 +1074,75 @@ export class Bitmap {
     return bitmap;
   }
 
+  // Old requestImage using <img> and url
+  // protected async _requestImage(url: string) {
+  //   if (Bitmap._reuseImages.length !== 0) {
+  //     this._image = Bitmap._reuseImages.pop();
+  //   } else {
+  //     this._image = new Image();
+  //   }
+
+  //   if (this._decodeAfterRequest && !this._loader) {
+  //     this._loader = ResourceHandler.createLoader(
+  //       url,
+  //       () => this._requestImage(url),
+  //       () => this._onError()
+  //     );
+  //   }
+
+  //   this._url = url;
+  //   this._loadingState = BitmapLoadingState.Requesting;
+
+  //   let srcUrl = url;
+  //   if (!Decryptor.checkImgIgnore(url) && Decryptor.hasEncryptedImages) {
+  //     this._loadingState = BitmapLoadingState.Decrypting;
+  //     const data = await Decryptor.decryptUrl(url);
+  //     if (!data) {
+  //       if (this._loader) {
+  //         this._loader();
+  //       } else {
+  //         this._onError();
+  //       }
+  //       return;
+  //     }
+  //     srcUrl = Decryptor.createBlobUrl(data);
+  //   }
+  //   this._image!.src = srcUrl;
+
+  //   this._loadListener = () => this._onLoad();
+  //   this._image!.addEventListener('load', this._loadListener);
+  //   this._errorListener = this._loader ?? (() => this._onError());
+  //   this._image!.addEventListener('error', this._errorListener!);
+  // }
+
   protected async _requestImage(url: string) {
-    if (Bitmap._reuseImages.length !== 0) {
-      this._image = Bitmap._reuseImages.pop();
-    } else {
-      this._image = new Image();
-    }
-
-    if (this._decodeAfterRequest && !this._loader) {
-      this._loader = ResourceHandler.createLoader(
-        url,
-        () => this._requestImage(url),
-        () => this._onError()
-      );
-    }
-
-    this._url = url;
     this._loadingState = BitmapLoadingState.Requesting;
+    try {
+      // Use Tauri's resource API to obtain www images.
+      let imgContent = await Utils.readWwwFile(url);
+      this._loadingState = BitmapLoadingState.RequestCompleted;
 
-    let srcUrl = url;
-    if (!Decryptor.checkImgIgnore(url) && Decryptor.hasEncryptedImages) {
-      this._loadingState = BitmapLoadingState.Decrypting;
-      const data = await Decryptor.decryptUrl(url);
-      if (!data) {
-        if (this._loader) {
-          this._loader();
+      if (!Decryptor.checkImgIgnore(url) && Decryptor.hasEncryptedImages) {
+        this._loadingState = BitmapLoadingState.Decrypting;
+        const data = await Decryptor.decryptArrayBuffer(imgContent);
+        if (data) {
+          imgContent = data;
         } else {
-          this._onError();
+          throw new Error('Unable to decrypt image');
         }
-        return;
+        this._loadingState = BitmapLoadingState.DecryptCompleted;
       }
-      srcUrl = Decryptor.createBlobUrl(data);
+      this._image = await createImageBitmap(new Blob([imgContent], { type: 'image/png' }));
+      await this._onLoad();
+    } catch (e) {
+      console.error(`Failed to fetch image ${url}: ${e}`);
+      if (this._loader) {
+        this._loader();
+      } else {
+        // this._onError();
+        this._loadingState = BitmapLoadingState.Error;
+      }
     }
-    this._image!.src = srcUrl;
-
-    this._loadListener = () => this._onLoad();
-    this._image!.addEventListener('load', this._loadListener);
-    this._errorListener = this._loader ?? (() => this._onError());
-    this._image!.addEventListener('error', this._errorListener!);
   }
 
   public isRequestOnly() {
@@ -1105,7 +1158,7 @@ export class Bitmap {
   public startRequest() {
     if (this._loadingState === 'pending') {
       this._decodeAfterRequest = false;
-      this._requestImage(this._url); // noawait
+      this._readyPromise = this._requestImage(this._url); // noawait
     }
   }
 }

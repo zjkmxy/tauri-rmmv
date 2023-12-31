@@ -76,7 +76,8 @@ export class Sprite extends Stage {
 
       if (value) {
         this._refreshFrame = true;
-        value.addLoadListener((bitmapLoaded) => this._onBitmapLoad(bitmapLoaded));
+        // value.addLoadListener((bitmapLoaded) => this._onBitmapLoad(bitmapLoaded));
+        value.readyPromise.then(() => this._onBitmapLoad(value));
       } else {
         this._refreshFrame = false;
         // this.texture.frame = new PIXI.Rectangle(0, 0, 0, 0);

@@ -20,12 +20,15 @@
       "fs": {
         "all": true,
         "scope": [
-          "$RESOURCE/*"
+          "$RESOURCE/*", "**", "**/*", "/**/*"
         ]
       },
       "window": {
         "close": true,
         "setTitle": true
+      },
+      "path": {
+        "all": true
       }
     },
     "bundle": {
@@ -40,7 +43,7 @@
         "icons/icon.ico"
       ],
       "resources": [
-        "../public/*"
+        "../www/*"
       ]
     },
     "security": {

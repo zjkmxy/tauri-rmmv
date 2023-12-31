@@ -175,7 +175,7 @@ export const isSupportPassiveEvent = function () {
 
 // --------- Newly added
 
-export const readPublicFile = async (fileUri: string) => {
-  const filePath = await path.resolveResource('public/' + fileUri);
+export const readWwwFile = async (fileUri: string) => {
+  const filePath = await path.resolveResource('../www/' + fileUri);
   return await fs.readBinaryFile(filePath, {});
 };

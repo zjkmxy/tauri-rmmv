@@ -60,7 +60,8 @@ export const initGraphics = async () => {
   await Graphics.initialize(_screenWidth, _screenHeight, rendererType);
   Graphics.default.boxWidth = _boxWidth;
   Graphics.default.boxHeight = _boxHeight;
-  Graphics.setLoadingImage('img/system/Loading.png');
+  // Graphics.setLoadingImage('img/system/Loading.png');
+  Graphics.setLoadingImage('Loading.png');
   // if (Utils.isOptionValid('showfps')) {
   //   Graphics.showFps();
   // }
@@ -71,7 +72,7 @@ export const initGraphics = async () => {
 
 export const preferableRendererType = (): Graphics.RendererType => {
   // if (Utils.isOptionValid('canvas')) {
-  //   return 'canvas';
+  //   return 'webgpu';
   // } else if (Utils.isOptionValid('webgl')) {
   //   return 'webgl';
   // } else {

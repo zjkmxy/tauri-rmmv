@@ -48,7 +48,7 @@ export const decryptUrl = async (url: string): Promise<ArrayBuffer | undefined> 
 
   const requestFile = await fetch(fileUrl);
   if (requestFile.ok) {
-    return await decryptArrayBuffer(await requestFile.arrayBuffer());
+    return await decryptArrayBuffer(new Uint8Array(await requestFile.arrayBuffer()));
   } else {
     return undefined;
   }
@@ -77,7 +77,8 @@ export const decryptUrl = async (url: string): Promise<ArrayBuffer | undefined> 
 //   };
 // };
 
-export const decryptArrayBuffer = (arrayBuffer: ArrayBuffer) => {
+// export const decryptArrayBuffer = (arrayBuffer: ArrayBuffer) => {
+export const decryptArrayBuffer = (arrayBuffer: Uint8Array) => {
   if (!arrayBuffer) return undefined;
   const header = new Uint8Array(arrayBuffer, 0, _headerlength);
 
@@ -94,13 +95,12 @@ export const decryptArrayBuffer = (arrayBuffer: ArrayBuffer) => {
   }
 
   arrayBuffer = arrayBuffer.slice(_headerlength);
-  const view = new DataView(arrayBuffer);
   // readEncryptionkey();  //TODO: Set key externally
   if (arrayBuffer) {
     const byteArray = new Uint8Array(arrayBuffer);
     for (i = 0; i < _headerlength; i++) {
       byteArray[i] = byteArray[i] ^ parseInt(_encryptionKey[i], 16);
-      view.setUint8(i, byteArray[i]);
+      arrayBuffer[i] = byteArray[i];
     }
   }
 

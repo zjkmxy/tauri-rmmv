@@ -572,7 +572,7 @@ export const playVideo = (src: string) => {
  */
 const _playVideo = (src: string) => {
   if (_video) {
-    _video.src = src;
+    _video.src = src; // TODO: src
     _video.onloadeddata = _onVideoLoad;
     // TODO: ResourceHandler
     // _video.onerror = _videoLoader;
