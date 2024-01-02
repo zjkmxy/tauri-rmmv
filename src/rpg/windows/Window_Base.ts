@@ -4,7 +4,7 @@
 // The superclass of all windows within the game.
 
 import { Sprite } from '../core/Sprite';
-import { Window } from '../core/Window';
+import { CoreWindow } from '../core/Window';
 import * as PIXI from 'pixi.js';
 import * as ImageManager from '../managers/ImageManager';
 import { Bitmap } from '../core/Bitmap';
@@ -18,7 +18,7 @@ export type TextState = {
   left: number;
 };
 
-export class Window_Base extends Window {
+export class Window_Base extends CoreWindow {
   protected _opening = false;
   protected _closing = false;
   protected _dimmerSprite: Sprite | undefined;
@@ -119,7 +119,7 @@ export class Window_Base extends Window {
   }
 
   public update() {
-    Window.prototype.update.call(this);
+    super.update();
     this.updateTone();
     this.updateOpen();
     this.updateClose();

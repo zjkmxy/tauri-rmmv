@@ -1,153 +1,154 @@
-// //-----------------------------------------------------------------------------
-// // Window_Command
-// //
-// // The superclass of windows for selecting a command.
+//-----------------------------------------------------------------------------
+// Window_Command
+//
+// The superclass of windows for selecting a command.
 
-// function Window_Command() {
-//   this.initialize.apply(this, arguments);
-// }
+import { Window_Selectable } from './Window_Selectable';
 
-// Window_Command.prototype = Object.create(Window_Selectable.prototype);
-// Window_Command.prototype.constructor = Window_Command;
+export type CommandItem<Key extends string, Ext> = {
+  name: string;
+  symbol: Key;
+  enabled: boolean;
+  ext?: Ext;
+};
 
-// Window_Command.prototype.initialize = function(x, y) {
-//   this.clearCommandList();
-//   this.makeCommandList();
-//   const width = this.windowWidth();
-//   const height = this.windowHeight();
-//   Window_Selectable.prototype.initialize.call(this, x, y, width, height);
-//   this.refresh();
-//   this.select(0);
-//   this.activate();
-// };
+/** The superclass of windows for selecting a command. */
+export class Window_Command<Key extends string, Ext = never> extends Window_Selectable<Key> {
+  protected _list: Array<CommandItem<Key, Ext>> = [];
 
-// Window_Command.prototype.windowWidth = function() {
-//   return 240;
-// };
+  constructor(x: number, y: number) {
+    super();
+    this.clearCommandList();
+    this.makeCommandList();
+    const width = this.windowWidth();
+    const height = this.windowHeight();
+    this.initialize(x, y, width, height);
+    this.refresh();
+    this.select(0);
+    this.activate();
+  }
 
-// Window_Command.prototype.windowHeight = function() {
-//   return this.fittingHeight(this.numVisibleRows());
-// };
+  public windowWidth() {
+    return 240;
+  }
 
-// Window_Command.prototype.numVisibleRows = function() {
-//   return Math.ceil(this.maxItems() / this.maxCols());
-// };
+  public windowHeight() {
+    return this.fittingHeight(this.numVisibleRows());
+  }
 
-// Window_Command.prototype.maxItems = function() {
-//   return this._list.length;
-// };
+  public numVisibleRows() {
+    return Math.ceil(this.maxItems() / this.maxCols());
+  }
 
-// Window_Command.prototype.clearCommandList = function() {
-//   this._list = [];
-// };
+  public maxItems() {
+    return this._list.length;
+  }
 
-// Window_Command.prototype.makeCommandList = function() {
-// };
+  public clearCommandList() {
+    this._list = [];
+  }
 
-// Window_Command.prototype.addCommand = function(name, symbol, enabled, ext) {
-//   if (enabled === undefined) {
-//       enabled = true;
-//   }
-//   if (ext === undefined) {
-//       ext = null;
-//   }
-//   this._list.push({ name: name, symbol: symbol, enabled: enabled, ext: ext});
-// };
+  public makeCommandList() {}
 
-// Window_Command.prototype.commandName = function(index) {
-//   return this._list[index].name;
-// };
+  public addCommand(name: string, symbol: Key, enabled: boolean = true, ext?: Ext) {
+    this._list.push({ name, symbol, enabled, ext });
+  }
 
-// Window_Command.prototype.commandSymbol = function(index) {
-//   return this._list[index].symbol;
-// };
+  public commandName(index: number) {
+    return this._list[index].name;
+  }
 
-// Window_Command.prototype.isCommandEnabled = function(index) {
-//   return this._list[index].enabled;
-// };
+  public commandSymbol(index: number) {
+    return this._list[index].symbol;
+  }
 
-// Window_Command.prototype.currentData = function() {
-//   return this.index() >= 0 ? this._list[this.index()] : null;
-// };
+  public isCommandEnabled(index: number) {
+    return this._list[index].enabled;
+  }
 
-// Window_Command.prototype.isCurrentItemEnabled = function() {
-//   return this.currentData() ? this.currentData().enabled : false;
-// };
+  public currentData() {
+    return this.index() >= 0 ? this._list[this.index()] : null;
+  }
 
-// Window_Command.prototype.currentSymbol = function() {
-//   return this.currentData() ? this.currentData().symbol : null;
-// };
+  public isCurrentItemEnabled() {
+    return this.currentData()?.enabled ?? false;
+  }
 
-// Window_Command.prototype.currentExt = function() {
-//   return this.currentData() ? this.currentData().ext : null;
-// };
+  public currentSymbol() {
+    return this.currentData()?.symbol;
+  }
 
-// Window_Command.prototype.findSymbol = function(symbol) {
-//   for (let i = 0; i < this._list.length; i++) {
-//       if (this._list[i].symbol === symbol) {
-//           return i;
-//       }
-//   }
-//   return -1;
-// };
+  public currentExt() {
+    return this.currentData()?.ext;
+  }
 
-// Window_Command.prototype.selectSymbol = function(symbol) {
-//   const index = this.findSymbol(symbol);
-//   if (index >= 0) {
-//       this.select(index);
-//   } else {
-//       this.select(0);
-//   }
-// };
+  public findSymbol(symbol: string) {
+    for (let i = 0; i < this._list.length; i++) {
+      if (this._list[i].symbol === symbol) {
+        return i;
+      }
+    }
+    return -1;
+  }
 
-// Window_Command.prototype.findExt = function(ext) {
-//   for (let i = 0; i < this._list.length; i++) {
-//       if (this._list[i].ext === ext) {
-//           return i;
-//       }
-//   }
-//   return -1;
-// };
+  public selectSymbol(symbol: string) {
+    const index = this.findSymbol(symbol);
+    if (index >= 0) {
+      this.select(index);
+    } else {
+      this.select(0);
+    }
+  }
 
-// Window_Command.prototype.selectExt = function(ext) {
-//   const index = this.findExt(ext);
-//   if (index >= 0) {
-//       this.select(index);
-//   } else {
-//       this.select(0);
-//   }
-// };
+  public findExt(ext: Ext) {
+    for (let i = 0; i < this._list.length; i++) {
+      if (this._list[i].ext === ext) {
+        return i;
+      }
+    }
+    return -1;
+  }
 
-// Window_Command.prototype.drawItem = function(index) {
-//   const rect = this.itemRectForText(index);
-//   const align = this.itemTextAlign();
-//   this.resetTextColor();
-//   this.changePaintOpacity(this.isCommandEnabled(index));
-//   this.drawText(this.commandName(index), rect.x, rect.y, rect.width, align);
-// };
+  public selectExt(ext: Ext) {
+    const index = this.findExt(ext);
+    if (index >= 0) {
+      this.select(index);
+    } else {
+      this.select(0);
+    }
+  }
 
-// Window_Command.prototype.itemTextAlign = function() {
-//   return 'left';
-// };
+  public drawItem(index: number) {
+    const rect = this.itemRectForText(index);
+    const align = this.itemTextAlign();
+    this.resetTextColor();
+    this.changePaintOpacity(this.isCommandEnabled(index));
+    this.drawText(this.commandName(index), rect.x, rect.y, rect.width, align);
+  }
 
-// Window_Command.prototype.isOkEnabled = function() {
-//   return true;
-// };
+  public itemTextAlign(): CanvasTextAlign {
+    return 'left';
+  }
 
-// Window_Command.prototype.callOkHandler = function() {
-//   const symbol = this.currentSymbol();
-//   if (this.isHandled(symbol)) {
-//       this.callHandler(symbol);
-//   } else if (this.isHandled('ok')) {
-//       Window_Selectable.prototype.callOkHandler.call(this);
-//   } else {
-//       this.activate();
-//   }
-// };
+  public isOkEnabled() {
+    return true;
+  }
 
-// Window_Command.prototype.refresh = function() {
-//   this.clearCommandList();
-//   this.makeCommandList();
-//   this.createContents();
-//   Window_Selectable.prototype.refresh.call(this);
-// };
+  public callOkHandler() {
+    const symbol = this.currentSymbol();
+    if (this.isHandled(symbol)) {
+      this.callHandler(symbol);
+    } else if (this.isHandled('ok')) {
+      super.callOkHandler();
+    } else {
+      this.activate();
+    }
+  }
+
+  public refresh() {
+    this.clearCommandList();
+    this.makeCommandList();
+    this.createContents();
+    super.refresh();
+  }
+}

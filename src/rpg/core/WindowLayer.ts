@@ -1,7 +1,14 @@
 // NOTE: Moved to Window.mask
 import { Stage } from './Stage';
 
-export class WindowLayer extends Stage {}
+export class WindowLayer extends Stage {
+  public move(x: number, y: number, width: number, height: number) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+  }
+}
 
 // //-----------------------------------------------------------------------------
 // /**

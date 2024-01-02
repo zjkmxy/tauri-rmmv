@@ -1,4 +1,4 @@
-import PIXI from 'pixi.js';
+import * as PIXI from 'pixi.js';
 import { Bitmap } from './Bitmap';
 import { ColorArray, Sprite } from './Sprite';
 import { numberClamp } from './JsExtensions';
@@ -12,7 +12,7 @@ import { CounterInterpolator } from './Interpolator';
  * @class Window
  * @constructor
  */
-export class Window extends Stage {
+export class CoreWindow extends Stage {
   protected _windowskin: Bitmap | undefined;
   protected _width = 0;
   protected _height = 0;
@@ -33,6 +33,8 @@ export class Window extends Stage {
   protected _windowPauseSignSprite: Sprite;
   protected _downArrowSprite: Sprite;
   protected _upArrowSprite: Sprite;
+
+  protected _needRefreshMask = true;
 
   /**
    * The origin point of the window for scrolling.
@@ -266,6 +268,10 @@ export class Window extends Stage {
     this._updateArrows();
     this._updatePauseSign();
     this._updateContents();
+
+    if (this._needRefreshMask) {
+      this._refreshMask();
+    }
 
     super.updateDelta(delta);
   }
@@ -519,17 +525,25 @@ export class Window extends Stage {
    * Moved here since Container provides mask functionality.
    */
   protected _refreshMask() {
-    // "Furthermore, a mask of an object must be in the subtree of its parent."
-    if (this.mask instanceof PIXI.Graphics) {
-      this.parent.removeChild(this.mask);
-    }
-    this.mask = new PIXI.Graphics({ fillStyle: 0xffffff }).rect(
-      this.x,
-      this.y + (this.height / 2) * (1 - this._openness / 255),
-      this.width,
-      (this.height * this._openness) / 255
-    );
-    this.parent.addChild(this.mask);
+    // TODO: Fix mask
+    // // "Furthermore, a mask of an object must be in the subtree of its parent."
+    // if (!this.parent) {
+    //   // This is because the Spirit is often created a mask before added into a container.
+    //   this._needRefreshMask = true;
+    //   return;
+    // }
+    // if (this.mask instanceof PIXI.Graphics) {
+    //   this.parent.removeChild(this.mask);
+    // }
+    // this.mask = new PIXI.Graphics({ fillStyle: 0xffffff }).rect(
+    //   -9999, -9999, 9999999, 9999999
+    //   // this.x,
+    //   // this.y + (this.height / 2) * (1 - this._openness / 255),
+    //   // this.width,
+    //   // (this.height * this._openness) / 255
+    // );
+    // this.parent.addChild(this.mask);
+    // this._needRefreshMask = false;
   }
 
   /**

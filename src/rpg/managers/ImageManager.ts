@@ -131,13 +131,16 @@ export const isReady = () => {
 };
 
 export const isObjectCharacter = (filename: string) => {
-  const sign = filename.match(/^[!$]+/);
+  // const sign = filename.match(/^[!$]+/);
+  const sign = filename.match(/^[!_]+/);
   return sign && sign[0].includes('!');
 };
 
 export const isBigCharacter = (filename: string) => {
-  const sign = filename.match(/^[!$]+/);
-  return sign && sign[0].includes('$');
+  // const sign = filename.match(/^[!$]+/);
+  // NOTE: Tauri cannot bundle file names with $.
+  const sign = filename.match(/^[!_]+/);
+  return sign && sign[0].includes('_');
 };
 
 export const isZeroParallax = (filename: string) => {

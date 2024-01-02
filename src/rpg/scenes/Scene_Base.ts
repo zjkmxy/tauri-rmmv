@@ -3,9 +3,12 @@
 import * as SceneManager from '../managers/SceneManager';
 import * as ImageManager from '../managers/ImageManager';
 import * as Utils from '../core/Utils';
+import * as Graphics from '../core/Graphics';
 import { Stage } from '../core/Stage';
 import { ScreenSprite } from '../core/ScreenSprite';
 import { Interpolator, LinearInterpolator } from '../core/Interpolator';
+import { WindowLayer } from '../core/WindowLayer';
+import { CoreWindow } from '../core/Window';
 
 export type SceneClass = new () => Scene_Base;
 
@@ -24,6 +27,7 @@ export class Scene_Base extends Stage {
   protected _fadeInterpolator: Interpolator | undefined;
   protected _fadeSprite: ScreenSprite | undefined = undefined;
   readonly _imageReservationId: number;
+  protected _windowLayer: WindowLayer | undefined;
 
   // Due to myth reason, Bitmap based sprites are incompatible with ImageSprites
   // Therefore, it is necessary to create a container separating them.
@@ -165,9 +169,9 @@ export class Scene_Base extends Stage {
    * @memberof Scene_Base
    * @return {Boolean} Return true if the scene is currently busy
    */
-  public isBusy() {
+  public isBusy(): boolean {
     // return this._fadeDuration > 0;
-    return this._fadeInterpolator;
+    return !!this._fadeInterpolator;
   }
 
   /**
@@ -188,14 +192,13 @@ export class Scene_Base extends Stage {
    * @memberof Scene_Base
    */
   public createWindowLayer() {
-    // TODO: WindowLayer
-    // const width = Graphics.boxWidth;
-    // const height = Graphics.boxHeight;
-    // const x = (Graphics.width - width) / 2;
-    // const y = (Graphics.height - height) / 2;
-    // this._windowLayer = new WindowLayer();
-    // this._windowLayer.move(x, y, width, height);
-    // this.addChild(this._windowLayer);
+    const width = Graphics.default.boxWidth;
+    const height = Graphics.default.boxHeight;
+    const x = (Graphics.default.width - width) / 2;
+    const y = (Graphics.default.height - height) / 2;
+    this._windowLayer = new WindowLayer();
+    this._windowLayer.move(x, y, width, height);
+    this.addChild(this._windowLayer);
   }
 
   /**
@@ -205,9 +208,8 @@ export class Scene_Base extends Stage {
    * @instance
    * @memberof Scene_Base
    */
-  public addWindow(window: Stage) {
-    // TODO: WindowLayer, Window
-    // this._windowLayer.addChild(window);
+  public addWindow(window: CoreWindow) {
+    this._windowLayer!.addChild(window);
     this.addChild(window);
   }
 

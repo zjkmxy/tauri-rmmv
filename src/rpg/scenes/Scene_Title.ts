@@ -11,11 +11,13 @@ import { Sprite } from '../core/Sprite';
 import { Bitmap } from '../core/Bitmap';
 import * as PIXI from 'pixi.js';
 import { ImageSprite } from '../next/ImageSprite';
+import { Window_TitleCommand } from '../windows/Window_TitleCommand';
 
 export class Scene_Title extends Scene_Base {
   protected _gameTitleSprite: Sprite | undefined;
   protected _backSprite1: ImageSprite | undefined;
   protected _backSprite2: ImageSprite | undefined;
+  protected _commandWindow: Window_TitleCommand | undefined;
 
   constructor() {
     super();
@@ -40,8 +42,7 @@ export class Scene_Title extends Scene_Base {
 
   public override update() {
     if (!this.isBusy()) {
-      // TODO: Window
-      // this._commandWindow.open();
+      this._commandWindow!.open();
     }
     super.update();
   }
@@ -51,9 +52,7 @@ export class Scene_Title extends Scene_Base {
   }
 
   public override isBusy() {
-    // TODO: Window
-    // return this._commandWindow.isClosing() || Scene_Base.prototype.isBusy.call(this);
-    return super.isBusy();
+    return this._commandWindow!.isClosing() || super.isBusy();
   }
 
   public override terminate() {
@@ -112,31 +111,30 @@ export class Scene_Title extends Scene_Base {
   }
 
   public createCommandWindow() {
-    // TODO: Window
-    // this._commandWindow = new Window_TitleCommand();
-    // this._commandWindow.setHandler('newGame',  this.commandNewGame.bind(this));
-    // this._commandWindow.setHandler('continue', this.commandContinue.bind(this));
-    // this._commandWindow.setHandler('options',  this.commandOptions.bind(this));
-    // this.addWindow(this._commandWindow);
+    this._commandWindow = new Window_TitleCommand();
+    this._commandWindow.setHandler('newGame', () => this.commandNewGame());
+    this._commandWindow.setHandler('continue', () => this.commandContinue());
+    this._commandWindow.setHandler('options', () => this.commandOptions());
+    this.addWindow(this._commandWindow);
   }
 
   public commandNewGame() {
     // TODO: Scene_Map, DataManager, Window
     // DataManager.setupNewGame();
-    // this._commandWindow.close();
+    this._commandWindow!.close();
     this.fadeOutAll();
     // SceneManager.goto(Scene_Map);
   }
 
   public commandContinue() {
     // TODO: Scene_Load, Window
-    // this._commandWindow.close();
+    this._commandWindow!.close();
     // SceneManager.push(Scene_Load);
   }
 
   public commandOptions() {
     // TODO: Scene_Options, Window
-    // this._commandWindow.close();
+    this._commandWindow!.close();
     // SceneManager.push(Scene_Options);
   }
 

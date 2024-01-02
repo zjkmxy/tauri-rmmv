@@ -18,8 +18,8 @@ export class TouchInput {
     moved: false,
     released: false,
     wheelX: 0,
-    wheelY: 0,
-  }
+    wheelY: 0
+  };
   protected static _triggered = false;
   protected static _cancelled = false;
   protected static _moved = false;
@@ -30,44 +30,43 @@ export class TouchInput {
   protected static _y = 0;
   protected static _date = 0;
 
-
-  private constructor() { }
+  private constructor() {}
 
   /**
-  * Initializes the touch system.
-  *
-  * @static
-  * @method initialize
-  */
+   * Initializes the touch system.
+   *
+   * @static
+   * @method initialize
+   */
   public static initialize() {
     TouchInput.clear();
     TouchInput._setupEventHandlers();
   }
 
   /**
-  * The wait time of the pseudo key repeat in frames.
-  *
-  * @static
-  * @property keyRepeatWait
-  * @type Number
-  */
+   * The wait time of the pseudo key repeat in frames.
+   *
+   * @static
+   * @property keyRepeatWait
+   * @type Number
+   */
   public static keyRepeatWait = 24;
 
   /**
-  * The interval of the pseudo key repeat in frames.
-  *
-  * @static
-  * @property keyRepeatInterval
-  * @type Number
-  */
+   * The interval of the pseudo key repeat in frames.
+   *
+   * @static
+   * @property keyRepeatInterval
+   * @type Number
+   */
   public static keyRepeatInterval = 6;
 
   /**
-  * Clears all the touch data.
-  *
-  * @static
-  * @method clear
-  */
+   * Clears all the touch data.
+   *
+   * @static
+   * @method clear
+   */
   public static clear() {
     TouchInput._mousePressed = false;
     TouchInput._screenPressed = false;
@@ -78,7 +77,7 @@ export class TouchInput {
       moved: false,
       released: false,
       wheelX: 0,
-      wheelY: 0,
+      wheelY: 0
     };
     TouchInput._triggered = false;
     TouchInput._cancelled = false;
@@ -89,14 +88,14 @@ export class TouchInput {
     TouchInput._x = 0;
     TouchInput._y = 0;
     TouchInput._date = 0;
-  };
+  }
 
   /**
-  * Updates the touch data.
-  *
-  * @static
-  * @method update
-  */
+   * Updates the touch data.
+   *
+   * @static
+   * @method update
+   */
   public static update() {
     TouchInput._triggered = TouchInput._events.triggered;
     TouchInput._cancelled = TouchInput._events.cancelled;
@@ -113,129 +112,131 @@ export class TouchInput {
     if (TouchInput.isPressed()) {
       TouchInput._pressedTime++;
     }
-  };
+  }
 
   /**
-  * Checks whether the mouse button or touchscreen is currently pressed down.
-  *
-  * @static
-  * @method isPressed
-  * @return {Boolean} True if the mouse button or touchscreen is pressed
-  */
+   * Checks whether the mouse button or touchscreen is currently pressed down.
+   *
+   * @static
+   * @method isPressed
+   * @return {Boolean} True if the mouse button or touchscreen is pressed
+   */
   public static isPressed() {
     return TouchInput._mousePressed || TouchInput._screenPressed;
-  };
+  }
 
   /**
-  * Checks whether the left mouse button or touchscreen is just pressed.
-  *
-  * @static
-  * @method isTriggered
-  * @return {Boolean} True if the mouse button or touchscreen is triggered
-  */
+   * Checks whether the left mouse button or touchscreen is just pressed.
+   *
+   * @static
+   * @method isTriggered
+   * @return {Boolean} True if the mouse button or touchscreen is triggered
+   */
   public static isTriggered() {
     return TouchInput._triggered;
-  };
+  }
 
   /**
-  * Checks whether the left mouse button or touchscreen is just pressed
-  * or a pseudo key repeat occurred.
-  *
-  * @static
-  * @method isRepeated
-  * @return {Boolean} True if the mouse button or touchscreen is repeated
-  */
+   * Checks whether the left mouse button or touchscreen is just pressed
+   * or a pseudo key repeat occurred.
+   *
+   * @static
+   * @method isRepeated
+   * @return {Boolean} True if the mouse button or touchscreen is repeated
+   */
   public static isRepeated() {
-    return (TouchInput.isPressed() &&
+    return (
+      TouchInput.isPressed() &&
       (TouchInput._triggered ||
         (TouchInput._pressedTime >= TouchInput.keyRepeatWait &&
-          TouchInput._pressedTime % TouchInput.keyRepeatInterval === 0)));
-  };
+          TouchInput._pressedTime % TouchInput.keyRepeatInterval === 0))
+    );
+  }
 
   /**
-  * Checks whether the left mouse button or touchscreen is kept depressed.
-  *
-  * @static
-  * @method isLongPressed
-  * @return {Boolean} True if the left mouse button or touchscreen is long-pressed
-  */
+   * Checks whether the left mouse button or touchscreen is kept depressed.
+   *
+   * @static
+   * @method isLongPressed
+   * @return {Boolean} True if the left mouse button or touchscreen is long-pressed
+   */
   public static isLongPressed() {
     return TouchInput.isPressed() && TouchInput._pressedTime >= TouchInput.keyRepeatWait;
-  };
+  }
 
   /**
-  * Checks whether the right mouse button is just pressed.
-  *
-  * @static
-  * @method isCancelled
-  * @return {Boolean} True if the right mouse button is just pressed
-  */
+   * Checks whether the right mouse button is just pressed.
+   *
+   * @static
+   * @method isCancelled
+   * @return {Boolean} True if the right mouse button is just pressed
+   */
   public static isCancelled() {
     return TouchInput._cancelled;
-  };
+  }
 
   /**
-  * Checks whether the mouse or a finger on the touchscreen is moved.
-  *
-  * @static
-  * @method isMoved
-  * @return {Boolean} True if the mouse or a finger on the touchscreen is moved
-  */
+   * Checks whether the mouse or a finger on the touchscreen is moved.
+   *
+   * @static
+   * @method isMoved
+   * @return {Boolean} True if the mouse or a finger on the touchscreen is moved
+   */
   public static isMoved() {
     return TouchInput._moved;
-  };
+  }
 
   /**
-  * Checks whether the left mouse button or touchscreen is released.
-  *
-  * @static
-  * @method isReleased
-  * @return {Boolean} True if the mouse button or touchscreen is released
-  */
+   * Checks whether the left mouse button or touchscreen is released.
+   *
+   * @static
+   * @method isReleased
+   * @return {Boolean} True if the mouse button or touchscreen is released
+   */
   public static isReleased() {
     return TouchInput._released;
-  };
+  }
 
   /**
-  * [read-only] The horizontal scroll amount.
-  *
-  * @static
-  * @property wheelX
-  * @type Number
-  */
+   * [read-only] The horizontal scroll amount.
+   *
+   * @static
+   * @property wheelX
+   * @type Number
+   */
   static get wheelX() {
     return TouchInput._wheelX;
   }
 
   /**
-  * [read-only] The vertical scroll amount.
-  *
-  * @static
-  * @property wheelY
-  * @type Number
-  */
+   * [read-only] The vertical scroll amount.
+   *
+   * @static
+   * @property wheelY
+   * @type Number
+   */
   static get wheelY() {
     return TouchInput._wheelY;
   }
 
   /**
-  * [read-only] The x coordinate on the canvas area of the latest touch event.
-  *
-  * @static
-  * @property x
-  * @type Number
-  */
+   * [read-only] The x coordinate on the canvas area of the latest touch event.
+   *
+   * @static
+   * @property x
+   * @type Number
+   */
   static get x() {
     return TouchInput._x;
   }
 
   /**
-  * [read-only] The y coordinate on the canvas area of the latest touch event.
-  *
-  * @static
-  * @property y
-  * @type Number
-  */
+   * [read-only] The y coordinate on the canvas area of the latest touch event.
+   *
+   * @static
+   * @property y
+   * @type Number
+   */
   static get y() {
     return TouchInput._y;
   }
@@ -245,21 +246,21 @@ export class TouchInput {
   }
 
   /**
-  * [read-only] The time of the last input in milliseconds.
-  *
-  * @static
-  * @property date
-  * @type Number
-  */
+   * [read-only] The time of the last input in milliseconds.
+   *
+   * @static
+   * @property date
+   * @type Number
+   */
   static get date() {
     return TouchInput._date;
   }
 
   /**
-  * @static
-  * @method _setupEventHandlers
-  * @private
-  */
+   * @static
+   * @method _setupEventHandlers
+   * @private
+   */
   protected static _setupEventHandlers() {
     // const isSupportPassive = Utils.isSupportPassiveEvent();
     document.addEventListener('mousedown', TouchInput._onMouseDown);
@@ -272,14 +273,14 @@ export class TouchInput {
     document.addEventListener('touchcancel', TouchInput._onTouchCancel);
     document.addEventListener('pointerdown', TouchInput._onPointerDown, { passive: false });
     window.addEventListener('blur', TouchInput._onLostFocus);
-  };
+  }
 
   /**
-  * @static
-  * @method _onMouseDown
-  * @param {MouseEvent} event
-  * @private
-  */
+   * @static
+   * @method _onMouseDown
+   * @param {MouseEvent} event
+   * @private
+   */
   protected static _onMouseDown(event: MouseEvent) {
     if (event.button === 0) {
       TouchInput._onLeftButtonDown(event);
@@ -288,14 +289,14 @@ export class TouchInput {
     } else if (event.button === 2) {
       TouchInput._onRightButtonDown(event);
     }
-  };
+  }
 
   /**
-  * @static
-  * @method _onLeftButtonDown
-  * @param {MouseEvent} event
-  * @private
-  */
+   * @static
+   * @method _onLeftButtonDown
+   * @param {MouseEvent} event
+   * @private
+   */
   protected static _onLeftButtonDown(event: MouseEvent) {
     const x = Graphics.pageToCanvasX(event.pageX);
     const y = Graphics.pageToCanvasY(event.pageY);
@@ -304,52 +305,52 @@ export class TouchInput {
       TouchInput._pressedTime = 0;
       TouchInput._onTrigger(x, y);
     }
-  };
+  }
 
   /**
-  * @static
-  * @method _onMiddleButtonDown
-  * @param {MouseEvent} event
-  * @private
-  */
+   * @static
+   * @method _onMiddleButtonDown
+   * @param {MouseEvent} event
+   * @private
+   */
   protected static _onMiddleButtonDown(event: MouseEvent) {
     event;
-  };
+  }
 
   /**
-  * @static
-  * @method _onRightButtonDown
-  * @param {MouseEvent} event
-  * @private
-  */
+   * @static
+   * @method _onRightButtonDown
+   * @param {MouseEvent} event
+   * @private
+   */
   protected static _onRightButtonDown(event: MouseEvent) {
     const x = Graphics.pageToCanvasX(event.pageX);
     const y = Graphics.pageToCanvasY(event.pageY);
     if (Graphics.isInsideCanvas(x, y)) {
       TouchInput._onCancel(x, y);
     }
-  };
+  }
 
   /**
-  * @static
-  * @method _onMouseMove
-  * @param {MouseEvent} event
-  * @private
-  */
+   * @static
+   * @method _onMouseMove
+   * @param {MouseEvent} event
+   * @private
+   */
   protected static _onMouseMove(event: MouseEvent) {
     if (TouchInput._mousePressed) {
       const x = Graphics.pageToCanvasX(event.pageX);
       const y = Graphics.pageToCanvasY(event.pageY);
       TouchInput._onMove(x, y);
     }
-  };
+  }
 
   /**
-  * @static
-  * @method _onMouseUp
-  * @param {MouseEvent} event
-  * @private
-  */
+   * @static
+   * @method _onMouseUp
+   * @param {MouseEvent} event
+   * @private
+   */
   protected static _onMouseUp(event: MouseEvent) {
     if (event.button === 0) {
       const x = Graphics.pageToCanvasX(event.pageX);
@@ -357,26 +358,26 @@ export class TouchInput {
       TouchInput._mousePressed = false;
       TouchInput._onRelease(x, y);
     }
-  };
+  }
 
   /**
-  * @static
-  * @method _onWheel
-  * @param {WheelEvent} event
-  * @private
-  */
+   * @static
+   * @method _onWheel
+   * @param {WheelEvent} event
+   * @private
+   */
   protected static _onWheel(event: WheelEvent) {
     TouchInput._events.wheelX += event.deltaX;
     TouchInput._events.wheelY += event.deltaY;
     event.preventDefault();
-  };
+  }
 
   /**
-  * @static
-  * @method _onTouchStart
-  * @param {TouchEvent} event
-  * @private
-  */
+   * @static
+   * @method _onTouchStart
+   * @param {TouchEvent} event
+   * @private
+   */
   protected static _onTouchStart(event: TouchEvent) {
     for (let i = 0; i < event.changedTouches.length; i++) {
       const touch = event.changedTouches[i];
@@ -396,14 +397,14 @@ export class TouchInput {
     // if (window.cordova || window.navigator.standalone) {
     //   event.preventDefault();
     // }
-  };
+  }
 
   /**
-  * @static
-  * @method _onTouchMove
-  * @param {TouchEvent} event
-  * @private
-  */
+   * @static
+   * @method _onTouchMove
+   * @param {TouchEvent} event
+   * @private
+   */
   protected static _onTouchMove(event: TouchEvent) {
     for (let i = 0; i < event.changedTouches.length; i++) {
       const touch = event.changedTouches[i];
@@ -411,14 +412,14 @@ export class TouchInput {
       const y = Graphics.pageToCanvasY(touch.pageY);
       TouchInput._onMove(x, y);
     }
-  };
+  }
 
   /**
-  * @static
-  * @method _onTouchEnd
-  * @param {TouchEvent} event
-  * @private
-  */
+   * @static
+   * @method _onTouchEnd
+   * @param {TouchEvent} event
+   * @private
+   */
   protected static _onTouchEnd(event: TouchEvent) {
     for (let i = 0; i < event.changedTouches.length; i++) {
       const touch = event.changedTouches[i];
@@ -427,24 +428,24 @@ export class TouchInput {
       TouchInput._screenPressed = false;
       TouchInput._onRelease(x, y);
     }
-  };
+  }
 
   /**
-  * @static
-  * @method _onTouchCancel
-  * @param {TouchEvent} event
-  * @private
-  */
+   * @static
+   * @method _onTouchCancel
+   * @param {TouchEvent} event
+   * @private
+   */
   protected static _onTouchCancel(/*event: TouchEvent*/) {
     TouchInput._screenPressed = false;
-  };
+  }
 
   /**
-  * @static
-  * @method _onPointerDown
-  * @param {PointerEvent} event
-  * @private
-  */
+   * @static
+   * @method _onPointerDown
+   * @param {PointerEvent} event
+   * @private
+   */
   protected static _onPointerDown(event: PointerEvent) {
     if (event.pointerType === 'touch' && !event.isPrimary) {
       const x = Graphics.pageToCanvasX(event.pageX);
@@ -455,67 +456,67 @@ export class TouchInput {
         event.preventDefault();
       }
     }
-  };
+  }
 
   /**
-  * @static
-  * @method _onLostFocus
-  * @private
-  */
+   * @static
+   * @method _onLostFocus
+   * @private
+   */
   protected static _onLostFocus() {
     TouchInput.clear();
-  };
+  }
 
   /**
-  * @static
-  * @method _onTrigger
-  * @param {Number} x
-  * @param {Number} y
-  * @private
-  */
+   * @static
+   * @method _onTrigger
+   * @param {Number} x
+   * @param {Number} y
+   * @private
+   */
   protected static _onTrigger(x: number, y: number) {
     TouchInput._events.triggered = true;
     TouchInput._x = x;
     TouchInput._y = y;
     TouchInput._date = Date.now();
-  };
+  }
 
   /**
-  * @static
-  * @method _onCancel
-  * @param {Number} x
-  * @param {Number} y
-  * @private
-  */
+   * @static
+   * @method _onCancel
+   * @param {Number} x
+   * @param {Number} y
+   * @private
+   */
   protected static _onCancel(x: number, y: number) {
     TouchInput._events.cancelled = true;
     TouchInput._x = x;
     TouchInput._y = y;
-  };
+  }
 
   /**
-  * @static
-  * @method _onMove
-  * @param {Number} x
-  * @param {Number} y
-  * @private
-  */
+   * @static
+   * @method _onMove
+   * @param {Number} x
+   * @param {Number} y
+   * @private
+   */
   protected static _onMove(x: number, y: number) {
     TouchInput._events.moved = true;
     TouchInput._x = x;
     TouchInput._y = y;
-  };
+  }
 
   /**
-  * @static
-  * @method _onRelease
-  * @param {Number} x
-  * @param {Number} y
-  * @private
-  */
+   * @static
+   * @method _onRelease
+   * @param {Number} x
+   * @param {Number} y
+   * @private
+   */
   protected static _onRelease(x: number, y: number) {
     TouchInput._events.released = true;
     TouchInput._x = x;
     TouchInput._y = y;
-  };
+  }
 }
