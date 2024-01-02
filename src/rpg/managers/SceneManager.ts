@@ -6,6 +6,7 @@ import { Bitmap } from '../core/Bitmap';
 import { SceneClass, Scene_Base } from '../scenes/Scene_Base';
 import * as PIXI from 'pixi.js';
 import { intializeAssetsParsers } from '../next/AssetsLoader';
+import { TouchInput } from '../core/TouchInput';
 
 //-----------------------------------------------------------------------------
 // SceneManager
@@ -73,7 +74,7 @@ export const initGraphics = async () => {
 };
 
 export const preferableRendererType = (): Graphics.RendererType => {
-  // if (Utils.isOptionValid('canvas')) {
+  // if (Utils.isOptionValid('webgpu')) {
   //   return 'webgpu';
   // } else if (Utils.isOptionValid('webgl')) {
   //   return 'webgl';
@@ -111,7 +112,7 @@ export const initAudio = () => {
 
 export const initInput = () => {
   Input.initialize();
-  // TouchInput.initialize();  //TODO: TouchInput
+  TouchInput.initialize();
 };
 
 export const initNwjs = () => {
@@ -239,7 +240,7 @@ export const catchException = (e: unknown) => {
 
 export const updateInputData = () => {
   Input.update();
-  // TouchInput.update(); // TODO: TouchInput
+  TouchInput.update();
 };
 
 export const updateMain = (ticker: PIXI.Ticker) => {
