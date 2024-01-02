@@ -5,16 +5,17 @@
 
 import { Scene_Base } from './Scene_Base';
 import * as SceneManager from '../managers/SceneManager';
-import * as ImageManager from '../managers/ImageManager';
+// import * as ImageManager from '../managers/ImageManager';
 import * as Graphics from '../core/Graphics';
 import { Sprite } from '../core/Sprite';
 import { Bitmap } from '../core/Bitmap';
-import { Point } from 'pixi.js';
+import * as PIXI from 'pixi.js';
+import { ImageSprite } from '../next/ImageSprite';
 
 export class Scene_Title extends Scene_Base {
   protected _gameTitleSprite: Sprite | undefined;
-  protected _backSprite1: Sprite | undefined;
-  protected _backSprite2: Sprite | undefined;
+  protected _backSprite1: ImageSprite | undefined;
+  protected _backSprite2: ImageSprite | undefined;
 
   constructor() {
     super();
@@ -22,14 +23,10 @@ export class Scene_Title extends Scene_Base {
 
   public override async create() {
     await super.create();
-    this.createBackground();
+    await this.createBackground();
     this.createForeground();
     this.createWindowLayer();
     this.createCommandWindow();
-
-    // DEBUG: create a new Sprite from an image path
-    // const texture = await PIXI.Assets.load('/bunny.png');
-    // this.bunny = PIXI.Sprite.from(texture);
   }
 
   public override start() {
@@ -64,14 +61,16 @@ export class Scene_Title extends Scene_Base {
     SceneManager.snapForBackground();
   }
 
-  public createBackground() {
+  public async createBackground() {
     // TODO: DataManager
     // this._backSprite1 = new Sprite(ImageManager.loadTitle1($dataSystem.title1Name));
     // this._backSprite2 = new Sprite(ImageManager.loadTitle2($dataSystem.title2Name));
-    this._backSprite1 = new Sprite(ImageManager.loadTitle1('Book'));
-    this._backSprite2 = new Sprite(ImageManager.loadTitle2('Floral'));
-    this.addChild(this._backSprite1);
-    this.addChild(this._backSprite2);
+    await Promise.all([
+      ImageSprite.load('img/titles1/Book').then((sprite) => (this._backSprite1 = sprite)),
+      ImageSprite.load('img/titles2/Floral').then((sprite) => (this._backSprite2 = sprite))
+    ]);
+    this.addChild(this._backSprite1!);
+    this.addChild(this._backSprite2!);
   }
 
   public createForeground() {
@@ -90,22 +89,26 @@ export class Scene_Title extends Scene_Base {
     // TODO: DataManager
     // var text = $dataSystem.gameTitle;
     const text = 'GAME TITLE HERE';
-    if (!this._gameTitleSprite) {
+    if (!this._gameTitleSprite || !this._gameTitleSprite.bitmap) {
       return;
     }
-    this._gameTitleSprite.bitmap!.outlineColor = 'black';
-    this._gameTitleSprite.bitmap!.outlineWidth = 8;
-    this._gameTitleSprite.bitmap!.fontSize = 72;
-    this._gameTitleSprite.bitmap!.drawText(text, x, y, maxWidth, 48, 'center');
+    const bitmap = this._gameTitleSprite.bitmap;
+    bitmap.outlineColor = 'black';
+    bitmap.outlineWidth = 8;
+    bitmap.fontSize = 72;
+    bitmap.drawText(text, x, y, maxWidth, 48, 'center');
+
+    // debug:
+    // this._gameTitleSprite!.scale = {x: 3, y: 3}
   }
 
-  public centerSprite(sprite: Sprite) {
+  public centerSprite(sprite: ImageSprite) {
     // sprite.x = Graphics.default.width / 2;
     // sprite.y = Graphics.default.height / 2;
     // sprite.anchor.x = 0.5;
     // sprite.anchor.y = 0.5;
     sprite.position = { x: Graphics.default.width / 2, y: Graphics.default.height / 2 };
-    sprite.anchor = new Point(0.5, 0.5);
+    sprite.anchor = new PIXI.Point(0.5, 0.5);
   }
 
   public createCommandWindow() {

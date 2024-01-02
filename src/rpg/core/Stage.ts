@@ -9,6 +9,8 @@ export class Stage extends PIXI.Container {
 
     // The interactive flag causes a memory leak.
     this.interactive = false;
+
+    this.filters = [];
   }
 
   /** The frame-based update. Approximately 60 FPS. */
@@ -31,9 +33,8 @@ export class Stage extends PIXI.Container {
    */
   public updateChildren() {
     for (const child of this.children) {
-      const childStage = child as Stage;
-      if (childStage.update) {
-        childStage.update();
+      if (child instanceof Stage && child.update) {
+        child.update();
       }
     }
   }
@@ -47,9 +48,8 @@ export class Stage extends PIXI.Container {
    */
   public updateChildrenDelta(delta: number) {
     for (const child of this.children) {
-      const childStage = child as Stage;
-      if (childStage.updateDelta) {
-        childStage.updateDelta(delta);
+      if (child instanceof Stage && child.updateDelta) {
+        child.updateDelta(delta);
       }
     }
   }

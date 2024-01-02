@@ -62,6 +62,7 @@ export class Bitmap {
 
   /**
    * Cache entry, for images. In all cases _url is the same as cacheEntry.key
+   * NOTE: Not used actually
    * @type CacheEntry
    */
   public cacheEntry: CacheEntry<unknown> | undefined = undefined;
@@ -153,6 +154,13 @@ export class Bitmap {
     // } else {
     //   this._baseTexture.scaleMode = "nearest";
     // }
+
+    // NOTE: To allow hot update, always create the canvas
+    if (source instanceof ImageBitmap) {
+      this._createCanvas(source.width, source.height);
+      source = this._canvas;
+    }
+
     this.__baseTexture = new PIXI.ImageSource({
       resource: source,
       alphaMode: 'premultiply-alpha-on-upload',
@@ -239,20 +247,21 @@ export class Bitmap {
     const width = Graphics.default.width;
     const height = Graphics.default.height;
     const bitmap = new Bitmap(width, height);
-    const context = bitmap._context;
+    // const context = bitmap._context;
     const renderTexture = PIXI.RenderTexture.create({ width, height });
     if (stage) {
       const renderer = Graphics.default.application!.renderer;
-      renderer.render(stage, { renderTexture });
-      stage.worldTransform.identity();
-      // let canvas = null;
-      // if (Graphics.isWebGL()) {
-      //   canvas = Graphics._renderer.extract.canvas(renderTexture);
-      // } else {
-      //   canvas = renderTexture.baseTexture._canvasRenderTarget.canvas;
-      // }
-      const canvas = renderer.extract.canvas(renderTexture) as HTMLCanvasElement;
-      context.drawImage(canvas, 0, 0);
+      // renderer.render(stage, { renderTexture });
+      // stage.worldTransform.identity();
+      // // let canvas = null;
+      // // if (Graphics.isWebGL()) {
+      // //   canvas = Graphics._renderer.extract.canvas(renderTexture);
+      // // } else {
+      // //   canvas = renderTexture.baseTexture._canvasRenderTarget.canvas;
+      // // }
+      // const canvas = renderer.extract.canvas(renderTexture) as HTMLCanvasElement;
+      // context.drawImage(canvas, 0, 0);
+      renderer.render({ container: stage, target: bitmap._canvas });
     }
     renderTexture.destroy(true);
     bitmap._setDirty();
@@ -768,6 +777,15 @@ export class Bitmap {
 
   /**
    * Changes the color tone of the entire bitmap.
+   * Equivalent to:
+   *   const filter = new ColorMatrixFilter()
+   *   filter.matrix = [
+   *     1, 0, 0, 0, r / 255,
+   *     0, 1, 0, 0, g / 255,
+   *     0, 0, 1, 0, b / 255,
+   *     0, 0, 0, 1, 0,
+   *   ]
+   *   sprite.filters = [filter];
    *
    * @method adjustTone
    * @param {Number} r The red strength in the range (-255, 255)
@@ -791,6 +809,10 @@ export class Bitmap {
 
   /**
    * Rotates the hue of the entire bitmap.
+   * Equivalent to:
+   *   const filter = new ColorMatrixFilter()
+   *   filter.hue(offset, false);
+   *   sprite.filters = [filter];
    *
    * @method rotateHue
    * @param {Number} offset The hue offset in 360 degrees
@@ -861,6 +883,8 @@ export class Bitmap {
 
   /**
    * Applies a blur effect to the bitmap.
+   * Equivalent to:
+   *   sprite.filters = [new BlurFilter({ strength: 1 })]
    *
    * @method blur
    */
@@ -1118,11 +1142,14 @@ export class Bitmap {
   protected async _requestImage(url: string) {
     this._loadingState = BitmapLoadingState.Requesting;
     try {
+      const toDecrypt = !Decryptor.checkImgIgnore(url) && Decryptor.hasEncryptedImages;
+      const fileUrl = toDecrypt ? Decryptor.extToEncryptExt(url) : url;
+
       // Use Tauri's resource API to obtain www images.
-      let imgContent = await Utils.readWwwFile(url);
+      let imgContent = await Utils.readWwwFile(fileUrl);
       this._loadingState = BitmapLoadingState.RequestCompleted;
 
-      if (!Decryptor.checkImgIgnore(url) && Decryptor.hasEncryptedImages) {
+      if (toDecrypt) {
         this._loadingState = BitmapLoadingState.Decrypting;
         const data = await Decryptor.decryptArrayBuffer(imgContent);
         if (data) {
@@ -1160,5 +1187,9 @@ export class Bitmap {
       this._decodeAfterRequest = false;
       this._readyPromise = this._requestImage(this._url); // noawait
     }
+  }
+
+  public destroy() {
+    this.__baseTexture?.destroy();
   }
 }

@@ -5,6 +5,7 @@ import * as ImageManager from './ImageManager';
 import { Bitmap } from '../core/Bitmap';
 import { SceneClass, Scene_Base } from '../scenes/Scene_Base';
 import * as PIXI from 'pixi.js';
+import { intializeAssetsParsers } from '../next/AssetsLoader';
 
 //-----------------------------------------------------------------------------
 // SceneManager
@@ -24,10 +25,10 @@ const _screenWidth = 816;
 const _screenHeight = 624;
 const _boxWidth = 816;
 const _boxHeight = 624;
-const _deltaTime = 1.0 / 60.0;
-let _currentTime = performance.now();
-let _accumulator = 0.0;
-let _frameCount = 0;
+// const _deltaTime = 1.0 / 60.0;
+// let _currentTime = performance.now();
+// let _accumulator = 0.0;
+// let _frameCount = 0;
 
 export const run = async (sceneClass: SceneClass) => {
   try {
@@ -41,6 +42,7 @@ export const run = async (sceneClass: SceneClass) => {
 };
 
 export const initialize = async () => {
+  intializeAssetsParsers();
   initProgressWatcher();
   await initGraphics();
   checkFileAccess();
@@ -135,16 +137,16 @@ export const setupErrorHandlers = () => {
 };
 
 export const frameCount = () => {
-  return _frameCount;
+  return Graphics.default.ticker.FPS ?? 0;
 };
 
-export const setFrameCount = (frameCount: number) => {
-  _frameCount = frameCount;
-};
+// export const setFrameCount = (frameCount: number) => {
+//   _frameCount = frameCount;
+// };
 
-export const resetFrameCount = () => {
-  _frameCount = 0;
-};
+// export const resetFrameCount = () => {
+//   _frameCount = 0;
+// };
 
 // This is automatic from application.Tick
 // export const requestUpdate = () => {
@@ -154,11 +156,11 @@ export const resetFrameCount = () => {
 // };
 
 export const startUpdate = async () => {
-  Graphics.default.application?.ticker.add(update);
+  Graphics.default.ticker.add(update);
 };
 
 export const stopUpdate = () => {
-  Graphics.default.application?.ticker.remove(update);
+  Graphics.default.ticker.remove(update);
 };
 
 export const update = (ticker: PIXI.Ticker) => {
@@ -180,14 +182,14 @@ export const terminate = () => {
   window.close();
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const onError = (e: any) => {
+export const onError = (e: ErrorEvent) => {
   console.error(e.message);
   if (e.filename || e.lineno) {
     console.error(e.filename, e.lineno);
     try {
       stop();
-      Graphics.printError('Error', e.message);
+      // Graphics.printError('Error', e.message);  // NOTE: Add more details
+      Graphics.printErrorDetail(e.error);
       // AudioManager.stopAll();
       // TODO: AudioManager
     } catch (e2) {
@@ -248,19 +250,24 @@ export const updateMain = (ticker: PIXI.Ticker) => {
   //     // ...
   // }
 
-  const newTime = performance.now();
-  if (_currentTime === undefined) {
-    _currentTime = newTime;
-  }
-  const fTime = Math.min(0.25, (newTime - _currentTime) / 1000);
-  _currentTime = newTime;
-  _accumulator += fTime;
-  while (_accumulator >= _deltaTime) {
-    updateInputData();
-    changeScene();
-    updateScene(ticker);
-    _accumulator -= _deltaTime;
-  }
+  // const newTime = performance.now();
+  // if (_currentTime === undefined) {
+  //   _currentTime = newTime;
+  // }
+  // const fTime = Math.min(0.25, (newTime - _currentTime) / 1000);
+  // _currentTime = newTime;
+  // _accumulator += fTime;
+  // while (_accumulator >= _deltaTime) {
+  //   updateInputData();
+  //   changeScene();
+  //   updateScene(ticker);
+  //   _accumulator -= _deltaTime;
+  // }
+
+  updateInputData();
+  changeScene();
+  updateScene(ticker);
+
   renderScene();
   // requestUpdate();
 };
@@ -298,7 +305,7 @@ export const updateScene = (ticker: PIXI.Ticker) => {
       onSceneStart();
     }
     if (isCurrentSceneStarted()) {
-      updateFrameCount();
+      // updateFrameCount();
       _scene.updateDelta(ticker.deltaMS / 1000.0);
       _scene.update();
     }
@@ -313,9 +320,9 @@ export const renderScene = () => {
   }
 };
 
-export const updateFrameCount = () => {
-  _frameCount++;
-};
+// export const updateFrameCount = () => {
+//   _frameCount++;
+// };
 
 export const onSceneCreate = () => {
   Graphics.startLoading();
@@ -417,6 +424,6 @@ export const resume = () => {
   //   _currentTime = _getTimeInMsWithoutMobileSafari();
   //   _accumulator = 0;
   // }
-  _currentTime = performance.now();
-  _accumulator = 0;
+  // _currentTime = performance.now();
+  // _accumulator = 0;
 };

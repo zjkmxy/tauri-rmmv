@@ -44,3 +44,35 @@ export class LinearInterpolator implements Interpolator {
     return new LinearInterpolator(start, target, frame / DefaultFps);
   }
 }
+
+export class CounterInterpolator implements Interpolator {
+  protected _current: number;
+  protected _cumulated: number;
+
+  constructor(
+    public readonly bound: number,
+    public readonly start: number = 0,
+    public readonly inteval: number = 1.0 / DefaultFps
+  ) {
+    this._current = start;
+    this._cumulated = 0;
+  }
+
+  get value(): number {
+    return this._current;
+  }
+
+  get done(): boolean {
+    return false;
+  }
+
+  public updateDelta(delta: number): number {
+    this._cumulated += delta;
+    if (this._cumulated >= this.inteval) {
+      const cnt = Math.floor(this._cumulated / this.inteval);
+      this._current += cnt;
+      this._cumulated -= cnt * this.inteval;
+    }
+    return this._current;
+  }
+}

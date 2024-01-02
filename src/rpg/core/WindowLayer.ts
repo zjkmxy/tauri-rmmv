@@ -1,3 +1,4 @@
+// NOTE: Moved to Window.mask
 // import PIXI from 'pixi.js'
 
 // //-----------------------------------------------------------------------------
@@ -13,7 +14,7 @@
 //   protected _tempCanvas = null;
 //   protected _translationMatrix = [1, 0, 0, 0, 1, 0, 0, 0, 1];
 //   protected _windowMask;
-//   protected _windowRect;
+//   // protected _windowRect;
 
 //   constructor() {
 //     super()
@@ -22,27 +23,61 @@
 //     // this._windowMask.beginFill(0xffffff, 1);
 //     // this._windowMask.drawRect(0, 0, 0, 0);
 //     // this._windowMask.endFill();
-//     this._windowMask.fillStyle = {color: 0xffffff, alpha: 1}
+//     this._windowMask.fillStyle = { color: 0xffffff, alpha: 1 }
 //     this._windowMask.rect(0, 0, 0, 0);
-//     this._windowRect = this._windowMask.geometry.graphicsData[0].shape;
+//     // this._windowRect = this._windowMask.graphicsData[0].shape;
 //   }
+
+//   /**
+//   * @method _maskWindow
+//   * @param {Window} window
+//   * @private
+//   */
+//   // protected _maskWindow(window, shift) {
+//   //   this._windowMask._currentBounds = null;
+//   //   this._windowMask.boundsDirty = true;
+//   //   var rect = this._windowRect;
+//   //   rect.x = this.x + shift.x + window.x;
+//   //   rect.y = this.y + shift.y + window.y + window.height / 2 * (1 - window._openness / 255);
+//   //   rect.width = window.width;
+//   //   rect.height = window.height * window._openness / 255;
+//   // };
+
+//   /**
+//   * @method _maskWindow
+//   * @param {Window} window
+//   * @private
+//   */
+//   protected _maskWindow(window: RpgWindow, shift: PIXI.PointData) {
+//     this.removeChildAt(0);  // _windowMask
+
+//     this._windowMask = new PIXI.Graphics();
+//     this._windowMask.fillStyle = { color: 0xffffff, alpha: 1 }
+//     const rect = new PIXI.Rectangle(
+//       this.x + shift.x + window.x,
+//       this.y + shift.y + window.y + window.height / 2 * (1 - window._openness / 255),
+//       window.width,
+//       window.height * window._openness / 255,
+//     )
+//     this._windowMask.rect(rect.x, rect.y, rect.width, rect.height);
+//   };
 // }
 
-// WindowLayer.prototype.initialize = function () {
+// // WindowLayer.prototype.initialize = function () {
 
-//   this._renderSprite = null;
-//   this.filterArea = new PIXI.Rectangle();
-//   this.filters = [WindowLayer.voidFilter];
+// //   this._renderSprite = null;
+// //   this.filterArea = new PIXI.Rectangle();
+// //   this.filters = [WindowLayer.voidFilter];
 
-//   //temporary fix for memory leak bug
-//   this.on('removed', this.onRemoveAsAChild);
-// };
+// //   //temporary fix for memory leak bug
+// //   this.on('removed', this.onRemoveAsAChild);
+// // };
 
-// WindowLayer.prototype.onRemoveAsAChild = function () {
-//   this.removeChildren();
-// }
+// // WindowLayer.prototype.onRemoveAsAChild = function () {
+// //   this.removeChildren();
+// // }
 
-// WindowLayer.voidFilter = new PIXI.filters.VoidFilter();
+// // WindowLayer.voidFilter = new PIXI.filters.VoidFilter();
 
 // /**
 // * The width of the window layer in pixels.
@@ -220,21 +255,6 @@
 //       this.children[j].renderWebGL(renderer);
 //     }
 //   }
-// };
-
-// /**
-// * @method _maskWindow
-// * @param {Window} window
-// * @private
-// */
-// WindowLayer.prototype._maskWindow = function (window, shift) {
-//   this._windowMask._currentBounds = null;
-//   this._windowMask.boundsDirty = true;
-//   var rect = this._windowRect;
-//   rect.x = this.x + shift.x + window.x;
-//   rect.y = this.y + shift.y + window.y + window.height / 2 * (1 - window._openness / 255);
-//   rect.width = window.width;
-//   rect.height = window.height * window._openness / 255;
 // };
 
 // // The important members from Pixi.js

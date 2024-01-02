@@ -35,7 +35,7 @@ export class Sprite extends Stage {
    * @type {boolean}
    * @private
    */
-  protected _isPicture = false;
+  // protected _isPicture = false;
 
   public readonly spriteId: number;
   public opaque = false;
@@ -43,13 +43,24 @@ export class Sprite extends Stage {
   /** Number of the created objects. */
   static _counter = 0;
 
-  constructor(bitmap: Bitmap) {
+  constructor(bitmap?: Bitmap) {
     super();
     this.spriteId = Sprite._counter++;
 
     this.bitmap = bitmap;
     this.onRender = () => this.touchBitmap();
     this.addChild(this.impl);
+  }
+
+  public destroy() {
+    // this._bitmap.destroy();  // Should be managed by the ImageManager
+    // Note that destroy in PIXI.js is only used to remove listeners.
+    // There is not necessarily a memory leak even destroy is not called.
+    super.destroy({
+      children: true,
+      texture: true,
+      textureSource: false // maybe cached
+    });
   }
 
   get texture() {
@@ -269,7 +280,7 @@ export class Sprite extends Stage {
         //   this.texture.baseTexture = this._bitmap.baseTexture;
         // }
         // this.texture.frame = this._realFrame;
-        console.debug('LOADED');
+        // console.debug('LOADED');
         this.impl.texture = new PIXI.Texture({
           source: this._bitmap?.baseTexture,
           frame: this._realFrame

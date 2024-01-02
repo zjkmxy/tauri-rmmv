@@ -28,6 +28,11 @@ export class ScreenSprite extends PIXI.Container {
     this.setBlack();
   }
 
+  public destroy() {
+    this._graphics.destroy();
+    super.destroy();
+  }
+
   /**
    * The opacity of the sprite (0 to 255).
    *

@@ -69,6 +69,7 @@ export class ImageCache {
           const bitmap = item.bitmap;
           sizeLeft -= bitmap.width * bitmap.height;
         } else {
+          item.bitmap.destroy(); // NOTE: Release the texture.
           delete items[item.key];
         }
       });

@@ -54,10 +54,10 @@ let _showErrorDetail = false;
  * @param type The type of the renderer.
  *        'webgpu', 'webgl', or 'auto'.
  */
-export const initialize = async (width: number, height: number, type: RendererType) => {
-  _width = width || 800;
-  _height = height || 600;
-  _rendererType = type || 'auto';
+export const initialize = async (width?: number, height?: number, type?: RendererType) => {
+  _width = width ?? 800;
+  _height = height ?? 600;
+  _rendererType = type ?? 'auto';
   _boxWidth = _width;
   _boxHeight = _height;
 
@@ -756,6 +756,14 @@ const Graphics = {
 
   get application() {
     return _application;
+  },
+
+  get ticker() {
+    if (_application && _application.ticker) {
+      return _application.ticker;
+    } else {
+      return PIXI.Ticker.shared;
+    }
   }
 };
 export default Graphics;
