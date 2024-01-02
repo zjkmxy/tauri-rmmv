@@ -404,7 +404,9 @@ export const stop = () => {
 // };
 
 export const snap = () => {
-  return Bitmap.snap(_scene!);
+  // return Bitmap.snap(_scene!);
+  // NOTE: Must be application's scene.
+  return Bitmap.snap(Graphics.default.application!.stage);
 };
 
 export const snapForBackground = () => {

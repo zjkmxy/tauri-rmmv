@@ -1,5 +1,7 @@
 // NOTE: Moved to Window.mask
-// import PIXI from 'pixi.js'
+import { Stage } from './Stage';
+
+export class WindowLayer extends Stage {}
 
 // //-----------------------------------------------------------------------------
 // /**

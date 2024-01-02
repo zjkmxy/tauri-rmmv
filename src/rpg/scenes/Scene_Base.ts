@@ -25,6 +25,10 @@ export class Scene_Base extends Stage {
   protected _fadeSprite: ScreenSprite | undefined = undefined;
   readonly _imageReservationId: number;
 
+  // Due to myth reason, Bitmap based sprites are incompatible with ImageSprites
+  // Therefore, it is necessary to create a container separating them.
+  protected _imageSpriteLayer: Stage;
+
   /**
    * Constructor
    * All subclasses must have parameter-less constructors.
@@ -32,6 +36,8 @@ export class Scene_Base extends Stage {
   constructor() {
     super();
     this._imageReservationId = Utils.generateRuntimeId();
+    this._imageSpriteLayer = new Stage();
+    this.addChild(this._imageSpriteLayer);
   }
 
   /**

@@ -69,8 +69,8 @@ export class Scene_Title extends Scene_Base {
       ImageSprite.load('img/titles1/Book').then((sprite) => (this._backSprite1 = sprite)),
       ImageSprite.load('img/titles2/Floral').then((sprite) => (this._backSprite2 = sprite))
     ]);
-    this.addChild(this._backSprite1!);
-    this.addChild(this._backSprite2!);
+    this._imageSpriteLayer.addChild(this._backSprite1!);
+    this._imageSpriteLayer.addChild(this._backSprite2!);
   }
 
   public createForeground() {

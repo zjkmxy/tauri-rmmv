@@ -1,5 +1,4 @@
 import * as PIXI from 'pixi.js';
-import { Stage } from './Stage';
 import * as Graphics from './Graphics';
 import { CacheEntry } from './Cache';
 import { stringPadZero } from './JsExtensions';
@@ -42,7 +41,7 @@ export class Bitmap {
   public _image: ImageBitmap | undefined;
   protected _url = '';
   protected _paintOpacity = 255;
-  protected _smooth = false;
+  protected _smooth = true;
   // protected _loadListeners: Array<(bitmap: Bitmap) => void> = [];
   protected _loadingState: BitmapLoadingState = BitmapLoadingState.None;
   protected _decodeAfterRequest = false;
@@ -243,7 +242,7 @@ export class Bitmap {
    * @param {Stage} stage The stage object
    * @return Bitmap
    */
-  public static snap(stage: Stage) {
+  public static snap(stage: PIXI.Container) {
     const width = Graphics.default.width;
     const height = Graphics.default.height;
     const bitmap = new Bitmap(width, height);
@@ -458,11 +457,11 @@ export class Bitmap {
     sh: number,
     dx: number,
     dy: number,
-    dw: number,
-    dh: number
+    dw?: number,
+    dh?: number
   ) {
-    dw = dw || sw;
-    dh = dh || sh;
+    dw = dw ?? sw;
+    dh = dh ?? sh;
     if (
       sx >= 0 &&
       sy >= 0 &&
@@ -623,7 +622,7 @@ export class Bitmap {
     height: number,
     color1: string,
     color2: string,
-    vertical: boolean
+    vertical: boolean = false
   ) {
     const context = this._context;
     let grad;
@@ -672,7 +671,7 @@ export class Bitmap {
    * @param {Number} lineHeight The height of the text line
    * @param {String} align The alignment of the text
    */
-  public drawText(text: string, x: number, y: number, maxWidth: number, lineHeight: number, align: CanvasTextAlign) {
+  public drawText(text: string, x: number, y: number, maxWidth: number, lineHeight: number, align?: CanvasTextAlign) {
     // Note: Firefox has a bug with textBaseline: Bug 737852
     //       So we use 'alphabetic' here.
     if (text !== undefined) {
@@ -693,7 +692,9 @@ export class Bitmap {
       }
       context.save();
       context.font = this._makeFontNameText();
-      context.textAlign = align;
+      if (align) {
+        context.textAlign = align;
+      }
       context.textBaseline = 'alphabetic';
       context.globalAlpha = 1;
       this._drawTextOutline(text, tx, ty, maxWidth);
@@ -721,7 +722,7 @@ export class Bitmap {
     y: number,
     maxWidth: number,
     lineHeight: number,
-    align: CanvasTextAlign
+    align?: CanvasTextAlign
   ) {
     const minFontSize = Bitmap.minFontSize;
     const bitmap = Bitmap.drawSmallTextBitmap;

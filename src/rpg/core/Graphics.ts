@@ -188,8 +188,16 @@ export const render = (stage?: PIXI.Container) => {
   // }
   // frameCount++;
   if (_application) {
-    if (stage && stage !== _application.stage) {
-      _application.stage = stage;
+    if (stage) {
+      if (_application.stage.children.length > 0) {
+        const oldChild = _application.stage.children[0];
+        if (oldChild === stage) {
+          return;
+        }
+        _application.stage.removeChild(oldChild);
+      }
+      _application.stage.addChild(stage);
+      stage.scale = { x: _realScale, y: _realScale };
     }
     // NOTE: Should be not automatic
     // _application.render();
@@ -294,7 +302,7 @@ const _setupProgress = () => {
 
   const _barElement = document.createElement('div');
   _barElement.id = 'loading-bar';
-  _barElement.style.width = '100%';
+  _barElement.style.width = 'calc(100% - 30px)';
   _barElement.style.height = '10%';
   _barElement.style.background = 'linear-gradient(to top, gray, lightgray)';
   _barElement.style.border = '5px solid white';
@@ -304,7 +312,7 @@ const _setupProgress = () => {
   _filledBarElement = document.createElement('div');
   _filledBarElement.id = 'loading-filled-bar';
   _filledBarElement.style.width = '0%';
-  _filledBarElement.style.height = '100%';
+  _filledBarElement.style.height = 'calc(100% - 20px)';
   _filledBarElement.style.background = 'linear-gradient(to top, lime, honeydew)';
   _filledBarElement.style.borderRadius = '10px';
 
@@ -1179,9 +1187,12 @@ const _updateRenderer = () => {
   //   _renderer.resize(_width, _height);
   // }
   if (_application) {
-    _updateCanvas();
+    // _updateCanvas();  // Already called
     // _application.resize();
     // _application.renderer.resolution = 1.0 / _realScale;
+    if (_application.stage.children.length > 0) {
+      _application.stage.children[0].scale = { x: _realScale, y: _realScale };
+    }
   }
 };
 
