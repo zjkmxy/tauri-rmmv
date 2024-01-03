@@ -2,37 +2,7 @@ import * as PIXI from 'pixi.js';
 import { Stage } from '../core/Stage';
 import { ColorArray } from '../core/Sprite';
 import { arrayEquals, numberClamp } from '../core/JsExtensions';
-
-export interface FilterImpl {
-  _loadMatrix(matrix: PIXI.ColorMatrix, multiply?: boolean): void;
-}
-
-export const ColorMatMultiply = (a: PIXI.ColorMatrix, b: PIXI.ColorMatrix): PIXI.ColorMatrix => [
-  // Red Channel
-  a[0] * b[0] + a[1] * b[5] + a[2] * b[10] + a[3] * b[15],
-  a[0] * b[1] + a[1] * b[6] + a[2] * b[11] + a[3] * b[16],
-  a[0] * b[2] + a[1] * b[7] + a[2] * b[12] + a[3] * b[17],
-  a[0] * b[3] + a[1] * b[8] + a[2] * b[13] + a[3] * b[18],
-  a[0] * b[4] + a[1] * b[9] + a[2] * b[14] + a[3] * b[19] + a[4],
-  // Green Channel
-  a[5] * b[0] + a[6] * b[5] + a[7] * b[10] + a[8] * b[15],
-  a[5] * b[1] + a[6] * b[6] + a[7] * b[11] + a[8] * b[16],
-  a[5] * b[2] + a[6] * b[7] + a[7] * b[12] + a[8] * b[17],
-  a[5] * b[3] + a[6] * b[8] + a[7] * b[13] + a[8] * b[18],
-  a[5] * b[4] + a[6] * b[9] + a[7] * b[14] + a[8] * b[19] + a[9],
-  // Blue Channel
-  a[10] * b[0] + a[11] * b[5] + a[12] * b[10] + a[13] * b[15],
-  a[10] * b[1] + a[11] * b[6] + a[12] * b[11] + a[13] * b[16],
-  a[10] * b[2] + a[11] * b[7] + a[12] * b[12] + a[13] * b[17],
-  a[10] * b[3] + a[11] * b[8] + a[12] * b[13] + a[13] * b[18],
-  a[10] * b[4] + a[11] * b[9] + a[12] * b[14] + a[13] * b[19] + a[14],
-  // Alpha Channel
-  a[15] * b[0] + a[16] * b[5] + a[17] * b[10] + a[18] * b[15],
-  a[15] * b[1] + a[16] * b[6] + a[17] * b[11] + a[18] * b[16],
-  a[15] * b[2] + a[16] * b[7] + a[17] * b[12] + a[18] * b[17],
-  a[15] * b[3] + a[16] * b[8] + a[17] * b[13] + a[18] * b[18],
-  a[15] * b[4] + a[16] * b[9] + a[17] * b[14] + a[18] * b[19] + a[19]
-];
+import { ToneFilter } from '../core/ToneFilter';
 
 export type ImageSpriteOptions = {
   frame?: PIXI.Rectangle;
@@ -54,14 +24,14 @@ export class ImageSprite extends Stage {
   protected _hue: number;
   protected _blur: number;
   protected _blurFilter: PIXI.BlurFilter | undefined;
-  protected _tintFilter: PIXI.ColorMatrixFilter | undefined;
+  protected _tintFilter: ToneFilter | undefined;
 
   protected _frame: PIXI.Rectangle;
   protected _realFrame = new PIXI.Rectangle();
 
   protected _updateFilters() {
     if (!this._tintFilter) {
-      this._tintFilter = new PIXI.ColorMatrixFilter();
+      this._tintFilter = new ToneFilter();
     }
     if (this._blur > 0 && !this._blurFilter) {
       this._blurFilter = new PIXI.BlurFilter({ strength: this._blur });
@@ -73,28 +43,16 @@ export class ImageSprite extends Stage {
     // grey de-saturation
     const [tr, tg, tb, grey] = this._colorTone;
     if (grey != 0) {
-      this._tintFilter.saturate(-grey / 255, true);
+      this._tintFilter.adjustSaturation(-grey);
     }
     // Add extra color as tint tone
-    // prettier-ignore
     if (tr != 0 || tg != 0 || tb != 0) {
-      this._tintFilter.matrix = ColorMatMultiply(this._tintFilter.matrix, [
-        1, 0, 0, 0, tr / 255,
-        0, 1, 0, 0, tg / 255,
-        0, 0, 1, 0, tb / 255,
-        0, 0, 0, 1, 0
-      ]);
+      this._tintFilter.adjustTone(tr, tg, tb);
     }
     // Blend in extra color
     const [br, bg, bb, ba] = this._blendColor;
-    // prettier-ignore
     if (ba > 0) {
-      this._tintFilter.matrix = ColorMatMultiply(this._tintFilter.matrix, [
-        1 - ba / 255, 0, 0, 0, ((br / 255) * ba) / 255,
-        0, 1 - ba / 255, 0, 0, ((bg / 255) * ba) / 255,
-        0, 0, 1 - ba / 255, 0, ((bb / 255) * ba) / 255,
-        0, 0, 0, 1, 0
-      ]);
+      this._tintFilter.blendColor(br, bg, bb, ba);
     }
     // Set filter layer
     if (this._blurFilter) {

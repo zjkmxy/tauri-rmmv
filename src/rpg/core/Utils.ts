@@ -179,3 +179,6 @@ export const readWwwFile = async (fileUri: string) => {
   const filePath = await path.resolveResource('../www/' + fileUri);
   return await fs.readBinaryFile(filePath, {});
 };
+
+export const functionForward = <Args extends Array<unknown>, T>(func: (...args: Args) => T, ...args: Args) =>
+  func(...args);

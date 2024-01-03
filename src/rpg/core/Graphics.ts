@@ -27,7 +27,8 @@ let _upperCanvas: HTMLCanvasElement | undefined;
 // TODO: export Ticker
 let _application: PIXI.Application | undefined;
 // let _fpsMeter: FPSMeter | undefined
-// let _modeBox: HTMLDivElement | undefined;
+let _modeBox: HTMLDivElement | undefined;
+let _fpsText: HTMLDivElement | undefined;
 // const _skipCount: number = 0;
 // const _maxSkip: number = 3;
 // const _rendered: boolean = false;
@@ -208,27 +209,29 @@ export const render = (stage?: PIXI.Container) => {
  * Checks whether the renderer type is WebGL.
  *
  * @static
- * @method isWebGL
- * @return {Boolean} True if the renderer type is WebGL
+ * @method isWebGPU
+ * @return {Boolean} True if the renderer type is WebGPU
  */
 // export const isWebGL = () => {
 //   return _renderer && _renderer.type === PIXI.RendererType.WEBGL;
 // };
-export const isWebGL = () => _application?.renderer.type === PIXI.RendererType.WEBGL;
+export const isWebGPU = () => _application?.renderer.type === PIXI.RendererType.WEBGPU;
 
 /**
  * Checks whether the current browser supports WebGL.
  * NOTE: Should always be true for morden browsers.
  *
  * @static
- * @method hasWebGL
+ * @method hasWebGPU
  * @return {Boolean} True if the current browser supports WebGL.
  */
-export const hasWebGL = () => {
-  try {
-    const canvas = document.createElement('canvas');
-    return !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
-  } catch (e) {
+export const hasWebGPU = async () => {
+  const gpu = navigator.gpu;
+  if (!gpu) {
+    return false;
+  }
+  const adapter = await gpu.requestAdapter();
+  if (!adapter) {
     return false;
   }
 };
@@ -497,6 +500,9 @@ export const showFps = () => {
   //   _fpsMeter.show();
   //   _modeBox.style.opacity = 1;
   // }
+  if (_modeBox) {
+    _modeBox.style.opacity = '1';
+  }
 };
 
 /**
@@ -510,6 +516,9 @@ export const hideFps = () => {
   //   _fpsMeter.hide();
   //   _modeBox.style.opacity = 0;
   // }
+  if (_modeBox) {
+    _modeBox.style.opacity = '0';
+  }
 };
 
 /**
@@ -788,7 +797,7 @@ const _createAllElements = async () => {
   _createUpperCanvas();
   await _createRenderer();
   // _createFPSMeter();
-  // _createModeBox();
+  _createModeBox();
   _createGameFontLoader();
 };
 
@@ -1130,7 +1139,7 @@ const _clearUpperCanvas = () => {
 const _paintUpperCanvas = () => {
   _clearUpperCanvas();
   if (_loadingImage && _loadingCount >= 20) {
-    const context = _upperCanvas?.getContext('2d');
+    const context = _upperCanvas!.getContext('2d');
     const dx = (_width - _loadingImage.width) / 2;
     const dy = (_height - _loadingImage.height) / 2;
     const alpha = numberClamp((_loadingCount - 20) / 30, 0, 1);
@@ -1175,6 +1184,12 @@ const _createRenderer = async () => {
   _updateCanvas();
   _application = new PIXI.Application();
   await _application.init({ resizeTo: _canvas, canvas: _canvas, autoDensity: false });
+
+  setInterval(() => {
+    if (_fpsText && _application && _application.ticker) {
+      _fpsText.innerText = `${Math.floor(_application.ticker.FPS)}`;
+    }
+  }, 1000);
 };
 
 /**
@@ -1188,8 +1203,7 @@ const _updateRenderer = () => {
   // }
   if (_application) {
     // _updateCanvas();  // Already called
-    // _application.resize();
-    // _application.renderer.resolution = 1.0 / _realScale;
+    _application.resize();
     if (_application.stage.children.length > 0) {
       _application.stage.children[0].scale = { x: _realScale, y: _realScale };
     }
@@ -1237,12 +1251,27 @@ const _createModeBox = () => {
   text.style.color = 'white';
   text.style.textAlign = 'center';
   text.style.textShadow = '1px 1px 0 rgba(0,0,0,0.5)';
-  text.innerHTML = isWebGL() ? 'WebGL mode' : 'Canvas mode';
+  text.innerHTML = isWebGPU() ? 'WebGPU mode' : 'WebGL mode';
+
+  const fpsText = document.createElement('div');
+  fpsText.id = 'modeText';
+  fpsText.style.position = 'absolute';
+  fpsText.style.left = '0px';
+  fpsText.style.top = '2px';
+  fpsText.style.width = '119px';
+  fpsText.style.fontSize = '20px';
+  fpsText.style.fontFamily = 'monospace';
+  fpsText.style.color = 'white';
+  fpsText.style.textAlign = 'center';
+  fpsText.style.textShadow = '1px 1px 0 rgba(0,0,0,0.5)';
+  fpsText.innerHTML = '';
 
   document.body.appendChild(box);
   box.appendChild(text);
+  box.appendChild(fpsText);
 
-  // _modeBox = box;
+  _modeBox = box;
+  _fpsText = fpsText;
 };
 
 /**
@@ -1467,6 +1496,12 @@ const _switchFPSMeter = () => {
   // } else {
   //   hideFps();
   // }
+
+  if (_modeBox?.style.opacity !== '1') {
+    showFps();
+  } else {
+    hideFps();
+  }
 };
 
 /**
