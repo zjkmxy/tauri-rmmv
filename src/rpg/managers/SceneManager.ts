@@ -68,9 +68,9 @@ export const initGraphics = async () => {
   // if (Utils.isOptionValid('showfps')) {
   //   Graphics.showFps();
   // }
-  // if (type === 'webgl') {
-  //   checkWebGL();
-  // }
+  if (rendererType === 'webgpu') {
+    checkWebGPU();
+  }
 };
 
 export const preferableRendererType = (): Graphics.RendererType => {
@@ -89,9 +89,9 @@ export const shouldUseCanvasRenderer = () => {
   return false;
 };
 
-export const checkWebGL = () => {
-  if (!Graphics.hasWebGL()) {
-    throw new Error('Your browser does not support WebGL.');
+export const checkWebGPU = () => {
+  if (!Graphics.hasWebGPU()) {
+    throw new Error('Your browser does not support WebGPU.');
   }
 };
 

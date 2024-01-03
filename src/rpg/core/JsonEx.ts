@@ -1,244 +1,339 @@
-// //-----------------------------------------------------------------------------
-// /**
-//  * The static class that handles JSON with object information.
-//  *
-//  * @class JsonEx
-//  */
-// function JsonEx() {
-//   throw new Error('This is a static class');
-// }
+//-----------------------------------------------------------------------------
 
-// /**
-// * The maximum depth of objects.
-// *
-// * @static
-// * @property maxDepth
-// * @type Number
-// * @default 100
-// */
-// JsonEx.maxDepth = 100;
+export type Circular = {
+  key: string;
+  parent: object;
+  value?: object;
+  id?: number;
+};
 
-// JsonEx._id = 1;
-// JsonEx._generateId = function(){
-//   return JsonEx._id++;
-// };
+export type EncodeOption = {
+  // The recursive depth
+  depth: number,
+  // The next ID number to allocate in encoding
+  maxId?: number,
+  // The list of modified objects. Used to restore the original object after encoding.
+  circulars: Array<Circular>,
+  // The registry storing encoded object, only used in decoding
+  registry?: Record<number, object>
+}
 
-// /**
-// * Converts an object to a JSON string with object information.
-// *
-// * @static
-// * @method stringify
-// * @param {Object} object The object to be converted
-// * @return {String} The JSON string
-// */
-// JsonEx.stringify = function(object) {
-//   var circular = [];
-//   JsonEx._id = 1;
-//   var json = JSON.stringify(this._encode(object, circular, 0));
-//   this._cleanMetadata(object);
-//   this._restoreCircularReference(circular);
+export enum EncodeKey {
+  ID = '@c',
+  Class = '@',
+  ArrayValue = '@a',
+  Reference = '@r'
+}
 
-//   return json;
-// };
+export type EncodeObjExtension = {
+  // The encoding ID of this object
+  [EncodeKey.ID]?: number;
 
-// JsonEx._restoreCircularReference = function(circulars){
-//   circulars.forEach(function(circular){
-//       var key = circular[0];
-//       var value = circular[1];
-//       var content = circular[2];
+  // The Class name of this object
+  [EncodeKey.Class]?: string;
 
-//       value[key] = content;
-//   });
-// };
+  // The value of this object
+  [EncodeKey.ArrayValue]?: Array<unknown>;
 
-// /**
-// * Parses a JSON string and reconstructs the corresponding object.
-// *
-// * @static
-// * @method parse
-// * @param {String} json The JSON string
-// * @return {Object} The reconstructed object
-// */
-// JsonEx.parse = function(json) {
-//   var circular = [];
-//   var registry = {};
-//   var contents = this._decode(JSON.parse(json), circular, registry);
-//   this._cleanMetadata(contents);
-//   this._linkCircularReference(contents, circular, registry);
+  // Refer to an already encoded object
+  [EncodeKey.Reference]?: number;
+}
 
-//   return contents;
-// };
+/**
+ * The static class that handles JSON with object information.
+ *
+ * @class JsonEx
+ */
+export class JsonEx {
+  private constructor() { }
 
-// JsonEx._linkCircularReference = function(contents, circulars, registry){
-//   circulars.forEach(function(circular){
-//       var key = circular[0];
-//       var value = circular[1];
-//       var id = circular[2];
+  /**
+  * The maximum depth of objects.
+  *
+  * @static
+  * @property maxDepth
+  * @type Number
+  * @default 100
+  */
+  static maxDepth = 100;
 
-//       value[key] = registry[id];
-//   });
-// };
+  protected static _id = 1;
 
-// JsonEx._cleanMetadata = function(object){
-//   if(!object) return;
+  protected static _generateId() {
+    return JsonEx._id++;
+  }
 
-//   delete object['@'];
-//   delete object['@c'];
+  static readonly constructors: Record<string, new () => object> = {}
 
-//   if(typeof object === 'object'){
-//       Object.keys(object).forEach(function(key){
-//           var value = object[key];
-//           if(typeof value === 'object'){
-//               JsonEx._cleanMetadata(value);
-//           }
-//       });
-//   }
-// };
+  /**
+  * @static
+  * @method _encode
+  * @param {Object} value
+  * @param {Array} circular
+  * @param {Number} depth
+  * @return {Object}
+  * @private
+  */
+  private static _encode(value: unknown, opt: EncodeOption & { maxId: number }): unknown {
+    // opt.depth += 1;
+    if (opt.depth >= this.maxDepth) {
+      throw new Error('Object too deep');
+    }
+    // const type = Object.prototype.toString.call(value);
+    // if (type === '[object Object]' || type === '[object Array]')
+    if (value instanceof Object) {
+      const valueExt = value as EncodeObjExtension;  // To mix our own fields
+      valueExt[EncodeKey.ID] = opt.maxId;
+      opt.maxId += 1;
 
-// /**
-// * Makes a deep copy of the specified object.
-// *
-// * @static
-// * @method makeDeepCopy
-// * @param {Object} object The object to be copied
-// * @return {Object} The copied object
-// */
-// JsonEx.makeDeepCopy = function(object) {
-//   return this.parse(this.stringify(object));
-// };
+      const constructorName = this._getConstructorName(value);
+      if (constructorName !== 'Object' && constructorName !== 'Array') {
+        valueExt[EncodeKey.Class] = constructorName;
+      }
+      for (const [key, propValue] of Object.entries(value)) {
+        // if (Object.hasOwn(value, key) && !key.match(/^@./)) {
+        if (Object.hasOwn(value, key) && !(key.length <= 2 && key[0] == '@')) {
+          // if (value[key] && typeof value[key] === 'object') {
+          if (propValue && propValue instanceof Object) {
+            // Object or Array
+            const propValueExt = propValue as EncodeObjExtension;
+            const propValueEncodedId = propValueExt[EncodeKey.ID];
+            if (propValueEncodedId) {
+              // Already encoded object, i.e. multiple references.
+              // circular.push([key, value, propValue]);
+              opt.circulars.push({
+                key: key,
+                parent: value,
+                value: propValue,
+              });
+              (value as unknown as { [key: string]: EncodeObjExtension })[key] = {
+                [EncodeKey.Reference]: propValueEncodedId
+              };
+            } else {
+              // Need to encode first
+              (value as unknown as { [key: string]: unknown })[key] = this._encode(propValue, {
+                ...opt,
+                depth: opt.depth + 1,
+              });
 
-// /**
-// * @static
-// * @method _encode
-// * @param {Object} value
-// * @param {Array} circular
-// * @param {Number} depth
-// * @return {Object}
-// * @private
-// */
-// JsonEx._encode = function(value, circular, depth) {
-//   depth = depth || 0;
-//   if (++depth >= this.maxDepth) {
-//       throw new Error('Object too deep');
-//   }
-//   var type = Object.prototype.toString.call(value);
-//   if (type === '[object Object]' || type === '[object Array]') {
-//       value['@c'] = JsonEx._generateId();
+              if (propValue instanceof Array) {
+                // Wrap array: this is the first time it occurs.
+                opt.circulars.push({
+                  key: key,
+                  parent: value,
+                  value: propValue,
+                });
 
-//       var constructorName = this._getConstructorName(value);
-//       if (constructorName !== 'Object' && constructorName !== 'Array') {
-//           value['@'] = constructorName;
-//       }
-//       for (var key in value) {
-//           if ((!value.hasOwnProperty || value.hasOwnProperty(key)) && !key.match(/^@./)) {
-//               if(value[key] && typeof value[key] === 'object'){
-//                   if(value[key]['@c']){
-//                       circular.push([key, value, value[key]]);
-//                       value[key] = {'@r': value[key]['@c']};
-//                   }else{
-//                       value[key] = this._encode(value[key], circular, depth + 1);
+                const newId = propValueExt[EncodeKey.ID];
+                (value as unknown as { [key: string]: EncodeObjExtension })[key] = {
+                  [EncodeKey.ID]: newId,
+                  [EncodeKey.ArrayValue]: propValue
+                };
+              }
+            }
+          } else {
+            // string, number, boolean, or null. Should need no encoding, but I keep the original code.
+            (value as unknown as { [key: string]: unknown })[key] = this._encode(propValue, {
+              ...opt,
+              depth: opt.depth + 1,
+            });
+          }
+        }
+      }
+    }
+    // opt.depth -= 1;
+    return value;
+  };
 
-//                       if(value[key] instanceof Array){
-//                           //wrap array
-//                           circular.push([key, value, value[key]]);
 
-//                           value[key] = {
-//                               '@c': value[key]['@c'],
-//                               '@a': value[key]
-//                           };
-//                       }
-//                   }
-//               }else{
-//                   value[key] = this._encode(value[key], circular, depth + 1);
-//               }
-//           }
-//       }
-//   }
-//   depth--;
-//   return value;
-// };
+  /**
+  * @static
+  * @method _getConstructorName
+  * @param {Object} value
+  * @return {String}
+  * @private
+  */
+  private static _getConstructorName(value: object) {
+    if (!value.constructor) {
+      return undefined;
+    }
+    const name = value.constructor.name;
+    if (name === undefined) {
+      // throw new Error(`No class name found for ${value}. What are you serilizing?`);
+      const func = /^\s*function\s*([A-Za-z0-9_$]*)/;
+      return func.exec(value.constructor.toString())?.[1];
+    }
+    return name;
+  };
 
-// /**
-// * @static
-// * @method _decode
-// * @param {Object} value
-// * @param {Array} circular
-// * @param {Object} registry
-// * @return {Object}
-// * @private
-// */
-// JsonEx._decode = function(value, circular, registry) {
-//   var type = Object.prototype.toString.call(value);
-//   if (type === '[object Object]' || type === '[object Array]') {
-//       registry[value['@c']] = value;
+  /**
+  * @static
+  * @method _decode
+  * @param {Object} value
+  * @param {Array} circular
+  * @param {Object} registry
+  * @return {Object}
+  * @private
+  */
+  private static _decode(value: object, opt: EncodeOption & { registry: object }): unknown {
+    // const type = Object.prototype.toString.call(value);
+    // if (type === '[object Object]' || type === '[object Array]') {
+    if (value instanceof Object) {
+      const valueExt = value as EncodeObjExtension;
+      opt.registry[valueExt[EncodeKey.ID]!] = value;  // Must be non-null
+      const className = valueExt[EncodeKey.Class];
+      if (!className) {
+        value = this._resetPrototype(value, undefined);
+      } else {
+        const constructor = this.constructors[className];
+        if (constructor) {
+          value = this._resetPrototype(value, constructor.prototype);
+        }
+      }
+      for (const [key, propValue] of Object.entries(value)) {
+        if (Object.hasOwn(value, key)) {
+          if (propValue && propValue[EncodeKey.ArrayValue]) {
+            //object is an array wrapper
+            const body = propValue[EncodeKey.ArrayValue];
+            body[EncodeKey.ID] = propValue[EncodeKey.ID];
+            (value as unknown as Record<string, unknown>)[key] = body;
+          } else if (propValue && propValue[EncodeKey.Reference]) {
+            //object is reference. Will link later.
+            opt.circulars.push({
+              key: key,
+              parent: value,
+              id: propValue[EncodeKey.Reference]
+            })
+          }
+          (value as unknown as Record<string, unknown>)[key] = this._decode(
+            (value as unknown as Record<string, object>)[key], opt
+          );
+        }
+      }
+    }
+    return value;
+  };
 
-//       if (value['@'] === null) {
-//           value = this._resetPrototype(value, null);
-//       } else if (value['@']) {
-//           var constructor = window[value['@']];
-//           if (constructor) {
-//               value = this._resetPrototype(value, constructor.prototype);
-//           }
-//       }
-//       for (var key in value) {
-//           if (!value.hasOwnProperty || value.hasOwnProperty(key)) {
-//               if(value[key] && value[key]['@a']){
-//                   //object is array wrapper
-//                   var body = value[key]['@a'];
-//                   body['@c'] = value[key]['@c'];
-//                   value[key] = body;
-//               }
-//               if(value[key] && value[key]['@r']){
-//                   //object is reference
-//                   circular.push([key, value, value[key]['@r']])
-//               }
-//               value[key] = this._decode(value[key], circular, registry);
-//           }
-//       }
-//   }
-//   return value;
-// };
 
-// /**
-// * @static
-// * @method _getConstructorName
-// * @param {Object} value
-// * @return {String}
-// * @private
-// */
-// JsonEx._getConstructorName = function(value) {
-//   if (!value.constructor) {
-//       return null;
-//   }
-//   var name = value.constructor.name;
-//   if (name === undefined) {
-//       var func = /^\s*function\s*([A-Za-z0-9_$]*)/;
-//       name = func.exec(value.constructor)[1];
-//   }
-//   return name;
-// };
+  /**
+  * @static
+  * @method _resetPrototype
+  * @param {Object} value
+  * @param {Object} prototype
+  * @return {Object}
+  * @private
+  */
+  private static _resetPrototype<T>(value: object, prototype?: new () => T): T {
+    // if (Object.setPrototypeOf !== undefined) {
+    //   Object.setPrototypeOf(value, prototype);
+    // } else if ('__proto__' in value) {
+    //   value.__proto__ = prototype;
+    // } else {
+    //   const newValue = Object.create(prototype);
+    //   for (const key in value) {
+    //     if (value.hasOwnProperty(key)) {
+    //       newValue[key] = value[key];
+    //     }
+    //   }
+    //   value = newValue;
+    // }
+    // NOTE: Set prototype is not preferrable in modern browser. Use bare constructors instead.
+    // This disallows inheritance.
+    if (prototype) {
+      const newValue = new prototype();
+      for (const [k, v] of Object.entries(value)) {
+        (newValue as unknown as Record<string, unknown>)[k] = v;
+      }
+      return newValue;
+    } else {
+      return value as unknown as T;
+    }
+  };
 
-// /**
-// * @static
-// * @method _resetPrototype
-// * @param {Object} value
-// * @param {Object} prototype
-// * @return {Object}
-// * @private
-// */
-// JsonEx._resetPrototype = function(value, prototype) {
-//   if (Object.setPrototypeOf !== undefined) {
-//       Object.setPrototypeOf(value, prototype);
-//   } else if ('__proto__' in value) {
-//       value.__proto__ = prototype;
-//   } else {
-//       var newValue = Object.create(prototype);
-//       for (var key in value) {
-//           if (value.hasOwnProperty(key)) {
-//               newValue[key] = value[key];
-//           }
-//       }
-//       value = newValue;
-//   }
-//   return value;
-// };
+  /** Recover objects after encoding */
+  private static _restoreCircularReference(circulars: Array<Circular>) {
+    for (const circular of circulars) {
+      const { key, parent, value } = circular;
+      (parent as unknown as Record<string, object>)[key] = value!;
+    };
+  };
+
+  /** Link objects after decoding */
+  private static _linkCircularReference(circulars: Array<Circular>, registry: Record<number, object>) {
+    for (const circular of circulars) {
+      const { key, parent, id } = circular;
+      (parent as unknown as Record<string, object>)[key] = registry[id!];
+    };
+  };
+
+  private static _cleanMetadata(obj: object) {
+    if (!obj) return;
+
+    delete (obj as unknown as EncodeObjExtension)[EncodeKey.Class];
+    delete (obj as unknown as EncodeObjExtension)[EncodeKey.ID];
+
+    if (obj instanceof Object) {
+      for (const value of Object.values(obj)) {
+        if (value instanceof Object) {
+          JsonEx._cleanMetadata(value);
+        }
+      }
+    }
+  };
+
+  /**
+  * Converts an object to a JSON string with object information.
+  *
+  * @static
+  * @method stringify
+  * @param {Object} object The object to be converted
+  * @return {String} The JSON string
+  */
+  public static stringify(obj: object) {
+    const circulars: Array<Circular> = [];
+    const json = JSON.stringify(this._encode(obj, {
+      circulars: circulars,
+      depth: 0,
+      maxId: 1,
+    }));
+    this._cleanMetadata(obj);
+    this._restoreCircularReference(circulars);
+
+    return json;
+  };
+
+  /**
+  * Parses a JSON string and reconstructs the corresponding object.
+  *
+  * @static
+  * @method parse
+  * @param {String} json The JSON string
+  * @return {Object} The reconstructed object
+  */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public static parse(json: string): any {
+    const circulars: Array<Circular> = [];
+    const registry: Record<number, object> = {};
+    const contents = this._decode(JSON.parse(json), {
+      circulars: circulars,
+      registry: registry,
+      depth: 0,
+    });
+    this._cleanMetadata(contents as object);
+    this._linkCircularReference(circulars, registry);
+
+    return contents;
+  };
+
+  /**
+  * Makes a deep copy of the specified object.
+  *
+  * @static
+  * @method makeDeepCopy
+  * @param {Object} object The object to be copied
+  * @return {Object} The copied object
+  */
+  public static makeDeepCopy<T extends object>(obj: T): T {
+    return this.parse(this.stringify(obj)) as T;
+  };
+}
