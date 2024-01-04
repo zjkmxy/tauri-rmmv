@@ -291,7 +291,7 @@ export const startLoading = () => {
   // ProgressWatcher.truncateProgress();
   // ProgressWatcher.setProgressListener(_updateProgressCount.bind(this));
   // TODO: rpgcore ProgressWatcher
-  _progressTimeout = setTimeout(() => {
+  _progressTimeout = window.setTimeout(() => {
     _showProgress();
   }, 1500);
 };

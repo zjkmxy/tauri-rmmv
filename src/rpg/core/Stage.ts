@@ -10,7 +10,10 @@ export class Stage extends PIXI.Container {
     // The interactive flag causes a memory leak.
     this.interactive = false;
 
-    this.filters = [];
+    // It is important to explicitly set this to empty.
+    // The ImageSprites may not be shown if we do not do so.
+    // SEE https://github.com/pixijs/pixijs/issues/10057
+    // this.filters = [];
   }
 
   /** The frame-based update. Approximately 60 FPS. */
