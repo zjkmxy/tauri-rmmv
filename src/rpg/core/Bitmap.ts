@@ -164,7 +164,7 @@ export class Bitmap {
       resource: source,
       alphaMode: 'premultiply-alpha-on-upload',
       autoGenerateMipmaps: false,
-      scaleMode: this._smooth ? 'linear' : 'nearest'
+      style: { scaleMode: this._smooth ? 'linear' : 'nearest' },
     });
   }
 
