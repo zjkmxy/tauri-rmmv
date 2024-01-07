@@ -525,25 +525,24 @@ export class CoreWindow extends Stage {
    * Moved here since Container provides mask functionality.
    */
   protected _refreshMask() {
-    // TODO: Fix mask
-    // // "Furthermore, a mask of an object must be in the subtree of its parent."
-    // if (!this.parent) {
-    //   // This is because the Spirit is often created a mask before added into a container.
-    //   this._needRefreshMask = true;
-    //   return;
-    // }
-    // if (this.mask instanceof PIXI.Graphics) {
-    //   this.parent.removeChild(this.mask);
-    // }
-    // this.mask = new PIXI.Graphics({ fillStyle: 0xffffff }).rect(
-    //   -9999, -9999, 9999999, 9999999
-    //   // this.x,
-    //   // this.y + (this.height / 2) * (1 - this._openness / 255),
-    //   // this.width,
-    //   // (this.height * this._openness) / 255
-    // );
-    // this.parent.addChild(this.mask);
-    // this._needRefreshMask = false;
+    // "Furthermore, a mask of an object must be in the subtree of its parent."
+    if (!this.parent) {
+      // This is because the Spirit is often created a mask before added into a container.
+      this._needRefreshMask = true;
+      return;
+    }
+    if (this.mask instanceof PIXI.Graphics) {
+      this.parent.removeChild(this.mask);
+    }
+    const mask = new PIXI.Graphics().rect(
+      this.x,
+      this.y + (this.height / 2) * (1 - this._openness / 255),
+      this.width,
+      (this.height * this._openness) / 255
+    ).fill(0xffffff);
+    this.parent.addChild(mask);
+    this.mask = mask;
+    this._needRefreshMask = false;
   }
 
   /**
