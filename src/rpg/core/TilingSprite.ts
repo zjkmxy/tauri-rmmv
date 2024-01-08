@@ -1,214 +1,162 @@
-// //-----------------------------------------------------------------------------
-// /**
-//  * The sprite object for a tiling image.
-//  *
-//  * @class TilingSprite
-//  * @constructor
-//  * @param {Bitmap} bitmap The image for the tiling sprite
-//  */
-// function TilingSprite() {
-//   this.initialize.apply(this, arguments);
-// }
+//-----------------------------------------------------------------------------
 
-// TilingSprite.prototype = Object.create(PIXI.extras.PictureTilingSprite.prototype);
-// TilingSprite.prototype.constructor = TilingSprite;
+import * as PIXI from 'pixi.js';
+import { Sprite } from './Sprite';
+import { Stage } from './Stage';
+import { numberClamp } from './JsExtensions';
 
-// TilingSprite.prototype.initialize = function(bitmap) {
-//   var texture = new PIXI.Texture(new PIXI.BaseTexture());
+export type TilingSpriteOptions = {
+  frame?: PIXI.Rectangle,
+  width?: number,
+  height?: number,
+}
 
-//   PIXI.extras.PictureTilingSprite.call(this, texture);
+/**
+ * The sprite object for a tiling image.
+ * NOTE: This does not draw custom bitmaps. So we will follow ImageSprite.
+ *       Also, you have to use [origin =] instead of setting parameters.
+ *
+ * @class TilingSprite
+ * @constructor
+ * @param {Bitmap} bitmap The image for the tiling sprite
+ */
+export class TilingSprite extends Stage {
+  readonly impl: PIXI.TilingSprite
+  _frame: PIXI.Rectangle
+  public readonly spriteId: number;
+  private _origin = new PIXI.Point();
 
-//   this._bitmap = null;
-//   this._width = 0;
-//   this._height = 0;
-//   this._frame = new Rectangle();
-//   this.spriteId = Sprite._counter++;
-//   /**
-//    * The origin point of the tiling sprite for scrolling.
-//    *
-//    * @property origin
-//    * @type Point
-//    */
-//   this.origin = new Point();
+  constructor(
+    public readonly source: PIXI.TextureSource,
+    opt?: TilingSpriteOptions,
+  ) {
+    super()
+    this._frame = opt?.frame ?? new PIXI.Rectangle(0, 0, source.width, source.height);
+    this.spriteId = Sprite._counter++;
 
-//   this.bitmap = bitmap;
-// };
+    this.impl = new PIXI.TilingSprite({
+      texture: new PIXI.Texture({
+        source: this.source,
+        frame: this._frame,
+      }),
+      width: opt?.width ?? 0,
+      height: opt?.height ?? 0,
+    });
+    this.addChild(this.impl);
+  }
 
-// TilingSprite.prototype._renderCanvas_PIXI = PIXI.extras.PictureTilingSprite.prototype._renderCanvas;
-// TilingSprite.prototype._renderWebGL_PIXI = PIXI.extras.PictureTilingSprite.prototype._renderWebGL;
+  // Need to override width and height since the container's width and height are always 0.
 
-// /**
-// * @method _renderCanvas
-// * @param {Object} renderer
-// * @private
-// */
-// TilingSprite.prototype._renderCanvas = function(renderer) {
-//   if (this._bitmap) {
-//       this._bitmap.touch();
-//   }
-//   if (this.texture.frame.width > 0 && this.texture.frame.height > 0) {
-//       this._renderCanvas_PIXI(renderer);
-//   }
-// };
+  public override get width() {
+    return this.impl.width;
+  }
+  public override set width(value: number) {
+    this.impl.width = value;
+  }
 
-// /**
-// * The image for the tiling sprite.
-// *
-// * @property bitmap
-// * @type Bitmap
-// */
-// Object.defineProperty(TilingSprite.prototype, 'bitmap', {
-//   get: function() {
-//       return this._bitmap;
-//   },
-//   set: function(value) {
-//       if (this._bitmap !== value) {
-//           this._bitmap = value;
-//           if (this._bitmap) {
-//               this._bitmap.addLoadListener(this._onBitmapLoad.bind(this));
-//           } else {
-//               this.texture.frame = Rectangle.emptyRectangle;
-//           }
-//       }
-//   },
-//   configurable: true
-// });
+  public override get height() {
+    return this.impl.height;
+  }
+  public override set height(value: number) {
+    this.impl.height = value;
+  }
 
-// /**
-// * The opacity of the tiling sprite (0 to 255).
-// *
-// * @property opacity
-// * @type Number
-// */
-// Object.defineProperty(TilingSprite.prototype, 'opacity', {
-//   get: function() {
-//       return this.alpha * 255;
-//   },
-//   set: function(value) {
-//       this.alpha = value.clamp(0, 255) / 255;
-//   },
-//   configurable: true
-// });
+  /**
+  * The opacity of the tiling sprite (0 to 255).
+  *
+  * @property opacity
+  * @type Number
+  */
+  public get opacity() {
+    return this.alpha * 255;
+  }
 
-// /**
-// * Updates the tiling sprite for each frame.
-// *
-// * @method update
-// */
-// TilingSprite.prototype.update = function() {
-//   this.children.forEach(function(child) {
-//       if (child.update) {
-//           child.update();
-//       }
-//   });
-// };
+  public set opacity(value) {
+    this.alpha = numberClamp(value, 0, 255) / 255;
+  }
 
-// /**
-// * Sets the x, y, width, and height all at once.
-// *
-// * @method move
-// * @param {Number} x The x coordinate of the tiling sprite
-// * @param {Number} y The y coordinate of the tiling sprite
-// * @param {Number} width The width of the tiling sprite
-// * @param {Number} height The height of the tiling sprite
-// */
-// TilingSprite.prototype.move = function(x, y, width, height) {
-//   this.x = x || 0;
-//   this.y = y || 0;
-//   this._width = width || 0;
-//   this._height = height || 0;
-// };
+  /**
+  * Sets the x, y, width, and height all at once.
+  *
+  * @method move
+  * @param {Number} x The x coordinate of the tiling sprite
+  * @param {Number} y The y coordinate of the tiling sprite
+  * @param {Number} width The width of the tiling sprite
+  * @param {Number} height The height of the tiling sprite
+  */
+  public move(x?: number, y?: number, width?: number, height?: number) {
+    this.x = x ?? 0;
+    this.y = y ?? 0;
+    this.width = width ?? 0;
+    this.height = height ?? 0;
+  }
 
-// /**
-// * Specifies the region of the image that the tiling sprite will use.
-// *
-// * @method setFrame
-// * @param {Number} x The x coordinate of the frame
-// * @param {Number} y The y coordinate of the frame
-// * @param {Number} width The width of the frame
-// * @param {Number} height The height of the frame
-// */
-// TilingSprite.prototype.setFrame = function(x, y, width, height) {
-//   this._frame.x = x;
-//   this._frame.y = y;
-//   this._frame.width = width;
-//   this._frame.height = height;
-//   this._refresh();
-// };
+  /**
+  * Specifies the region of the image that the tiling sprite will use.
+  *
+  * @method setFrame
+  * @param {Number} x The x coordinate of the frame
+  * @param {Number} y The y coordinate of the frame
+  * @param {Number} width The width of the frame
+  * @param {Number} height The height of the frame
+  */
+  public setFrame(x?: number, y?: number, width?: number, height?: number) {
+    this._frame = new PIXI.Rectangle(
+      x ?? 0,
+      y ?? 0,
+      width ?? this.source.width,
+      height ?? this.source.height);
+    this._refresh();
+  }
 
-// /**
-// * @method updateTransform
-// * @private
-// */
-// TilingSprite.prototype.updateTransform = function() {
-//   this.tilePosition.x = Math.round(-this.origin.x);
-//   this.tilePosition.y = Math.round(-this.origin.y);
-//   this.updateTransformTS();
-// };
+  /**
+  * @method _refresh
+  * @private
+  */
+  protected _refresh() {
+    // const frame = this._frame.clone();
+    // if (frame.width === 0 && frame.height === 0 && this._bitmap) {
+    //   frame.width = this._bitmap.width;
+    //   frame.height = this._bitmap.height;
+    // }
+    // this.texture.frame = frame;
+    // this.texture._updateID++;
+    // this.tilingTexture = null;
+    this.impl.texture = new PIXI.Texture({
+      source: this.source,
+      frame: this._frame,
+    });
+  };
 
-// TilingSprite.prototype.updateTransformTS = PIXI.extras.TilingSprite.prototype.updateTransform;
+  // updateTransform(opts: Partial<PIXI.UpdateTransformOptions>): this {
+  //   super.updateTransform(opts);
+  //   this.impl.tilePosition = new PIXI.Point(
+  //     Math.round(-this.origin.x),
+  //     Math.round(-this.origin.y)
+  //   );
+  //   return this;
+  // }
 
-// /**
-// * @method _onBitmapLoad
-// * @private
-// */
-// TilingSprite.prototype._onBitmapLoad = function() {
-//   this.texture.baseTexture = this._bitmap.baseTexture;
-//   this._refresh();
-// };
+  /**
+   * The origin point of the tiling sprite for scrolling.
+   *
+   * @property origin
+   * @type Point
+   */
+  public get origin() {
+    return this._origin;
+  }
 
-// /**
-// * @method _refresh
-// * @private
-// */
-// TilingSprite.prototype._refresh = function() {
-//   var frame = this._frame.clone();
-//   if (frame.width === 0 && frame.height === 0 && this._bitmap) {
-//       frame.width = this._bitmap.width;
-//       frame.height = this._bitmap.height;
-//   }
-//   this.texture.frame = frame;
-//   this.texture._updateID++;
-//   this.tilingTexture = null;
-// };
+  public set origin(value: PIXI.PointLike) {
+    this._origin = new PIXI.Point(value.x, value.y);
+    this.impl.tilePosition = new PIXI.Point(
+      Math.round(-this._origin.x),
+      Math.round(-this._origin.y)
+    );
+  }
 
-// TilingSprite.prototype._speedUpCustomBlendModes = Sprite.prototype._speedUpCustomBlendModes;
-
-// /**
-// * @method _renderWebGL
-// * @param {Object} renderer
-// * @private
-// */
-// TilingSprite.prototype._renderWebGL = function(renderer) {
-//   if (this._bitmap) {
-//       this._bitmap.touch();
-//       this._bitmap.checkDirty();
-//   }
-
-//   this._speedUpCustomBlendModes(renderer);
-
-//   this._renderWebGL_PIXI(renderer);
-// };
-
-// // The important members from Pixi.js
-
-// /**
-// * The visibility of the tiling sprite.
-// *
-// * @property visible
-// * @type Boolean
-// */
-
-// /**
-// * The x coordinate of the tiling sprite.
-// *
-// * @property x
-// * @type Number
-// */
-
-// /**
-// * The y coordinate of the tiling sprite.
-// *
-// * @property y
-// * @type Number
-// */
+  static async load(fullPath: string, opt?: TilingSpriteOptions) {
+    const texture = await PIXI.Assets.load<PIXI.Texture>(fullPath);
+    return new TilingSprite(texture.source, opt);
+  }
+}
