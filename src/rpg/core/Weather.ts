@@ -1,18 +1,75 @@
 // //-----------------------------------------------------------------------------
+
+// import * as PIXI from 'pixi.js';
+// import { Stage } from './Stage';
+
+// export type WeatherType = 'none' | 'rain' | 'storm' | 'snow';
+
 // /**
 //  * The weather effect which displays rain, storm, or snow.
+//  * NOTE: This does not draw custom bitmaps. So we will follow ImageSprite.
+//  *       Also, you have to use [origin =] instead of setting parameters.
 //  *
 //  * @class Weather
 //  * @constructor
 //  */
-// function Weather() {
-//   this.initialize.apply(this, arguments);
+
+// export class Weather extends Stage {
+//   protected _type: WeatherType = 'none';
+//   protected _power: number = 0;
+//   protected _origin: PIXI.Point = new PIXI.Point(0, 0);
+
+//   constructor() {
+//     super()
+//   }
+
+//   /**
+//    * The type of the weather in ['none', 'rain', 'storm', 'snow'].
+//    *
+//    * @property type
+//    * @type WeatherType
+//    */
+//   public get type() {
+//     return this._type;
+//   }
+
+//   public set type(value: WeatherType) {
+//     // TODO
+//   }
+
+//   /**
+//    * The power of the weather in the range (0, 9).
+//    *
+//    * @property power
+//    * @type Number
+//    */
+//   public get power() {
+//     return this._power;
+//   }
+
+//   public set power(value: number) {
+//     // TODO
+//   }
+
+//   /**
+//    * The origin point of the weather for scrolling.
+//    *
+//    * @property origin
+//    * @type Point
+//    */
+//   public get origin() {
+//     return this._origin;
+//   }
+
+//   public set origin(value: PIXI.PointLike) {
+//     // TODO
+//   }
 // }
 
 // Weather.prototype = Object.create(PIXI.Container.prototype);
 // Weather.prototype.constructor = Weather;
 
-// Weather.prototype.initialize = function() {
+// Weather.prototype.initialize = function () {
 //   PIXI.Container.call(this);
 
 //   this._width = Graphics.width;
@@ -52,7 +109,7 @@
 // *
 // * @method update
 // */
-// Weather.prototype.update = function() {
+// Weather.prototype.update = function () {
 //   this._updateDimmer();
 //   this._updateAllSprites();
 // };
@@ -61,7 +118,7 @@
 // * @method _createBitmaps
 // * @private
 // */
-// Weather.prototype._createBitmaps = function() {
+// Weather.prototype._createBitmaps = function () {
 //   this._rainBitmap = new Bitmap(1, 60);
 //   this._rainBitmap.fillAll('white');
 //   this._stormBitmap = new Bitmap(2, 100);
@@ -74,7 +131,7 @@
 // * @method _createDimmer
 // * @private
 // */
-// Weather.prototype._createDimmer = function() {
+// Weather.prototype._createDimmer = function () {
 //   this._dimmerSprite = new ScreenSprite();
 //   this._dimmerSprite.setColor(80, 80, 80);
 //   this.addChild(this._dimmerSprite);
@@ -84,7 +141,7 @@
 // * @method _updateDimmer
 // * @private
 // */
-// Weather.prototype._updateDimmer = function() {
+// Weather.prototype._updateDimmer = function () {
 //   this._dimmerSprite.opacity = Math.floor(this.power * 6);
 // };
 
@@ -92,18 +149,18 @@
 // * @method _updateAllSprites
 // * @private
 // */
-// Weather.prototype._updateAllSprites = function() {
+// Weather.prototype._updateAllSprites = function () {
 //   var maxSprites = Math.floor(this.power * 10);
 //   while (this._sprites.length < maxSprites) {
-//       this._addSprite();
+//     this._addSprite();
 //   }
 //   while (this._sprites.length > maxSprites) {
-//       this._removeSprite();
+//     this._removeSprite();
 //   }
-//   this._sprites.forEach(function(sprite) {
-//       this._updateSprite(sprite);
-//       sprite.x = sprite.ax - this.origin.x;
-//       sprite.y = sprite.ay - this.origin.y;
+//   this._sprites.forEach(function (sprite) {
+//     this._updateSprite(sprite);
+//     sprite.x = sprite.ax - this.origin.x;
+//     sprite.y = sprite.ay - this.origin.y;
 //   }, this);
 // };
 
@@ -111,7 +168,7 @@
 // * @method _addSprite
 // * @private
 // */
-// Weather.prototype._addSprite = function() {
+// Weather.prototype._addSprite = function () {
 //   var sprite = new Sprite(this.viewport);
 //   sprite.opacity = 0;
 //   this._sprites.push(sprite);
@@ -122,7 +179,7 @@
 // * @method _removeSprite
 // * @private
 // */
-// Weather.prototype._removeSprite = function() {
+// Weather.prototype._removeSprite = function () {
 //   this.removeChild(this._sprites.pop());
 // };
 
@@ -131,20 +188,20 @@
 // * @param {Sprite} sprite
 // * @private
 // */
-// Weather.prototype._updateSprite = function(sprite) {
+// Weather.prototype._updateSprite = function (sprite) {
 //   switch (this.type) {
-//   case 'rain':
+//     case 'rain':
 //       this._updateRainSprite(sprite);
 //       break;
-//   case 'storm':
+//     case 'storm':
 //       this._updateStormSprite(sprite);
 //       break;
-//   case 'snow':
+//     case 'snow':
 //       this._updateSnowSprite(sprite);
 //       break;
 //   }
 //   if (sprite.opacity < 40) {
-//       this._rebornSprite(sprite);
+//     this._rebornSprite(sprite);
 //   }
 // };
 
@@ -153,7 +210,7 @@
 // * @param {Sprite} sprite
 // * @private
 // */
-// Weather.prototype._updateRainSprite = function(sprite) {
+// Weather.prototype._updateRainSprite = function (sprite) {
 //   sprite.bitmap = this._rainBitmap;
 //   sprite.rotation = Math.PI / 16;
 //   sprite.ax -= 6 * Math.sin(sprite.rotation);
@@ -166,7 +223,7 @@
 // * @param {Sprite} sprite
 // * @private
 // */
-// Weather.prototype._updateStormSprite = function(sprite) {
+// Weather.prototype._updateStormSprite = function (sprite) {
 //   sprite.bitmap = this._stormBitmap;
 //   sprite.rotation = Math.PI / 8;
 //   sprite.ax -= 8 * Math.sin(sprite.rotation);
@@ -179,7 +236,7 @@
 // * @param {Sprite} sprite
 // * @private
 // */
-// Weather.prototype._updateSnowSprite = function(sprite) {
+// Weather.prototype._updateSnowSprite = function (sprite) {
 //   sprite.bitmap = this._snowBitmap;
 //   sprite.rotation = Math.PI / 16;
 //   sprite.ax -= 3 * Math.sin(sprite.rotation);
@@ -192,7 +249,7 @@
 // * @param {Sprite} sprite
 // * @private
 // */
-// Weather.prototype._rebornSprite = function(sprite) {
+// Weather.prototype._rebornSprite = function (sprite) {
 //   sprite.ax = Math.randomInt(Graphics.width + 100) - 100 + this.origin.x;
 //   sprite.ay = Math.randomInt(Graphics.height + 200) - 200 + this.origin.y;
 //   sprite.opacity = 160 + Math.randomInt(60);

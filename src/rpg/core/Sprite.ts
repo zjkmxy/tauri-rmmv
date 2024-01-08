@@ -356,7 +356,7 @@ export class Sprite extends Stage {
       alphaMode: 'premultiply-alpha-on-upload',
       width: w,
       height: h,
-      style: this._bitmap?.baseTexture.style
+      ...this._bitmap?.baseTexture.style
     });
   }
 

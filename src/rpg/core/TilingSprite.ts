@@ -6,10 +6,10 @@ import { Stage } from './Stage';
 import { numberClamp } from './JsExtensions';
 
 export type TilingSpriteOptions = {
-  frame?: PIXI.Rectangle,
-  width?: number,
-  height?: number,
-}
+  frame?: PIXI.Rectangle;
+  width?: number;
+  height?: number;
+};
 
 /**
  * The sprite object for a tiling image.
@@ -21,26 +21,26 @@ export type TilingSpriteOptions = {
  * @param {Bitmap} bitmap The image for the tiling sprite
  */
 export class TilingSprite extends Stage {
-  readonly impl: PIXI.TilingSprite
-  _frame: PIXI.Rectangle
+  readonly impl: PIXI.TilingSprite;
+  _frame: PIXI.Rectangle;
   public readonly spriteId: number;
   private _origin = new PIXI.Point();
 
   constructor(
     public readonly source: PIXI.TextureSource,
-    opt?: TilingSpriteOptions,
+    opt?: TilingSpriteOptions
   ) {
-    super()
+    super();
     this._frame = opt?.frame ?? new PIXI.Rectangle(0, 0, source.width, source.height);
     this.spriteId = Sprite._counter++;
 
     this.impl = new PIXI.TilingSprite({
       texture: new PIXI.Texture({
         source: this.source,
-        frame: this._frame,
+        frame: this._frame
       }),
       width: opt?.width ?? 0,
-      height: opt?.height ?? 0,
+      height: opt?.height ?? 0
     });
     this.addChild(this.impl);
   }
@@ -62,11 +62,11 @@ export class TilingSprite extends Stage {
   }
 
   /**
-  * The opacity of the tiling sprite (0 to 255).
-  *
-  * @property opacity
-  * @type Number
-  */
+   * The opacity of the tiling sprite (0 to 255).
+   *
+   * @property opacity
+   * @type Number
+   */
   public get opacity() {
     return this.alpha * 255;
   }
@@ -76,14 +76,14 @@ export class TilingSprite extends Stage {
   }
 
   /**
-  * Sets the x, y, width, and height all at once.
-  *
-  * @method move
-  * @param {Number} x The x coordinate of the tiling sprite
-  * @param {Number} y The y coordinate of the tiling sprite
-  * @param {Number} width The width of the tiling sprite
-  * @param {Number} height The height of the tiling sprite
-  */
+   * Sets the x, y, width, and height all at once.
+   *
+   * @method move
+   * @param {Number} x The x coordinate of the tiling sprite
+   * @param {Number} y The y coordinate of the tiling sprite
+   * @param {Number} width The width of the tiling sprite
+   * @param {Number} height The height of the tiling sprite
+   */
   public move(x?: number, y?: number, width?: number, height?: number) {
     this.x = x ?? 0;
     this.y = y ?? 0;
@@ -92,27 +92,23 @@ export class TilingSprite extends Stage {
   }
 
   /**
-  * Specifies the region of the image that the tiling sprite will use.
-  *
-  * @method setFrame
-  * @param {Number} x The x coordinate of the frame
-  * @param {Number} y The y coordinate of the frame
-  * @param {Number} width The width of the frame
-  * @param {Number} height The height of the frame
-  */
+   * Specifies the region of the image that the tiling sprite will use.
+   *
+   * @method setFrame
+   * @param {Number} x The x coordinate of the frame
+   * @param {Number} y The y coordinate of the frame
+   * @param {Number} width The width of the frame
+   * @param {Number} height The height of the frame
+   */
   public setFrame(x?: number, y?: number, width?: number, height?: number) {
-    this._frame = new PIXI.Rectangle(
-      x ?? 0,
-      y ?? 0,
-      width ?? this.source.width,
-      height ?? this.source.height);
+    this._frame = new PIXI.Rectangle(x ?? 0, y ?? 0, width ?? this.source.width, height ?? this.source.height);
     this._refresh();
   }
 
   /**
-  * @method _refresh
-  * @private
-  */
+   * @method _refresh
+   * @private
+   */
   protected _refresh() {
     // const frame = this._frame.clone();
     // if (frame.width === 0 && frame.height === 0 && this._bitmap) {
@@ -124,9 +120,9 @@ export class TilingSprite extends Stage {
     // this.tilingTexture = null;
     this.impl.texture = new PIXI.Texture({
       source: this.source,
-      frame: this._frame,
+      frame: this._frame
     });
-  };
+  }
 
   // updateTransform(opts: Partial<PIXI.UpdateTransformOptions>): this {
   //   super.updateTransform(opts);
@@ -149,10 +145,7 @@ export class TilingSprite extends Stage {
 
   public set origin(value: PIXI.PointLike) {
     this._origin = new PIXI.Point(value.x, value.y);
-    this.impl.tilePosition = new PIXI.Point(
-      Math.round(-this._origin.x),
-      Math.round(-this._origin.y)
-    );
+    this.impl.tilePosition = new PIXI.Point(Math.round(-this._origin.x), Math.round(-this._origin.y));
   }
 
   static async load(fullPath: string, opt?: TilingSpriteOptions) {

@@ -534,12 +534,14 @@ export class CoreWindow extends Stage {
     if (this.mask instanceof PIXI.Graphics) {
       this.parent.removeChild(this.mask);
     }
-    const mask = new PIXI.Graphics().rect(
-      this.x,
-      this.y + (this.height / 2) * (1 - this._openness / 255),
-      this.width,
-      (this.height * this._openness) / 255
-    ).fill(0xffffff);
+    const mask = new PIXI.Graphics()
+      .rect(
+        this.x,
+        this.y + (this.height / 2) * (1 - this._openness / 255),
+        this.width,
+        (this.height * this._openness) / 255
+      )
+      .fill(0xffffff);
     this.parent.addChild(mask);
     this.mask = mask;
     this._needRefreshMask = false;

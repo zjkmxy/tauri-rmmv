@@ -9,14 +9,14 @@ export type Circular = {
 
 export type EncodeOption = {
   // The recursive depth
-  depth: number,
+  depth: number;
   // The next ID number to allocate in encoding
-  maxId?: number,
+  maxId?: number;
   // The list of modified objects. Used to restore the original object after encoding.
-  circulars: Array<Circular>,
+  circulars: Array<Circular>;
   // The registry storing encoded object, only used in decoding
-  registry?: Record<number, object>
-}
+  registry?: Record<number, object>;
+};
 
 export enum EncodeKey {
   ID = '@c',
@@ -37,7 +37,7 @@ export type EncodeObjExtension = {
 
   // Refer to an already encoded object
   [EncodeKey.Reference]?: number;
-}
+};
 
 /**
  * The static class that handles JSON with object information.
@@ -45,16 +45,16 @@ export type EncodeObjExtension = {
  * @class JsonEx
  */
 export class JsonEx {
-  private constructor() { }
+  private constructor() {}
 
   /**
-  * The maximum depth of objects.
-  *
-  * @static
-  * @property maxDepth
-  * @type Number
-  * @default 100
-  */
+   * The maximum depth of objects.
+   *
+   * @static
+   * @property maxDepth
+   * @type Number
+   * @default 100
+   */
   static maxDepth = 100;
 
   protected static _id = 1;
@@ -63,17 +63,17 @@ export class JsonEx {
     return JsonEx._id++;
   }
 
-  static readonly constructors: Record<string, new () => object> = {}
+  static readonly constructors: Record<string, new () => object> = {};
 
   /**
-  * @static
-  * @method _encode
-  * @param {Object} value
-  * @param {Array} circular
-  * @param {Number} depth
-  * @return {Object}
-  * @private
-  */
+   * @static
+   * @method _encode
+   * @param {Object} value
+   * @param {Array} circular
+   * @param {Number} depth
+   * @return {Object}
+   * @private
+   */
   private static _encode(value: unknown, opt: EncodeOption & { maxId: number }): unknown {
     // opt.depth += 1;
     if (opt.depth >= this.maxDepth) {
@@ -82,7 +82,7 @@ export class JsonEx {
     // const type = Object.prototype.toString.call(value);
     // if (type === '[object Object]' || type === '[object Array]')
     if (value instanceof Object) {
-      const valueExt = value as EncodeObjExtension;  // To mix our own fields
+      const valueExt = value as EncodeObjExtension; // To mix our own fields
       valueExt[EncodeKey.ID] = opt.maxId;
       opt.maxId += 1;
 
@@ -104,7 +104,7 @@ export class JsonEx {
               opt.circulars.push({
                 key: key,
                 parent: value,
-                value: propValue,
+                value: propValue
               });
               (value as unknown as { [key: string]: EncodeObjExtension })[key] = {
                 [EncodeKey.Reference]: propValueEncodedId
@@ -113,7 +113,7 @@ export class JsonEx {
               // Need to encode first
               (value as unknown as { [key: string]: unknown })[key] = this._encode(propValue, {
                 ...opt,
-                depth: opt.depth + 1,
+                depth: opt.depth + 1
               });
 
               if (propValue instanceof Array) {
@@ -121,7 +121,7 @@ export class JsonEx {
                 opt.circulars.push({
                   key: key,
                   parent: value,
-                  value: propValue,
+                  value: propValue
                 });
 
                 const newId = propValueExt[EncodeKey.ID];
@@ -135,7 +135,7 @@ export class JsonEx {
             // string, number, boolean, or null. Should need no encoding, but I keep the original code.
             (value as unknown as { [key: string]: unknown })[key] = this._encode(propValue, {
               ...opt,
-              depth: opt.depth + 1,
+              depth: opt.depth + 1
             });
           }
         }
@@ -143,16 +143,15 @@ export class JsonEx {
     }
     // opt.depth -= 1;
     return value;
-  };
-
+  }
 
   /**
-  * @static
-  * @method _getConstructorName
-  * @param {Object} value
-  * @return {String}
-  * @private
-  */
+   * @static
+   * @method _getConstructorName
+   * @param {Object} value
+   * @return {String}
+   * @private
+   */
   private static _getConstructorName(value: object) {
     if (!value.constructor) {
       return undefined;
@@ -164,23 +163,23 @@ export class JsonEx {
       return func.exec(value.constructor.toString())?.[1];
     }
     return name;
-  };
+  }
 
   /**
-  * @static
-  * @method _decode
-  * @param {Object} value
-  * @param {Array} circular
-  * @param {Object} registry
-  * @return {Object}
-  * @private
-  */
+   * @static
+   * @method _decode
+   * @param {Object} value
+   * @param {Array} circular
+   * @param {Object} registry
+   * @return {Object}
+   * @private
+   */
   private static _decode(value: object, opt: EncodeOption & { registry: object }): unknown {
     // const type = Object.prototype.toString.call(value);
     // if (type === '[object Object]' || type === '[object Array]') {
     if (value instanceof Object) {
       const valueExt = value as EncodeObjExtension;
-      opt.registry[valueExt[EncodeKey.ID]!] = value;  // Must be non-null
+      opt.registry[valueExt[EncodeKey.ID]!] = value; // Must be non-null
       const className = valueExt[EncodeKey.Class];
       if (!className) {
         value = this._resetPrototype(value, undefined);
@@ -203,26 +202,26 @@ export class JsonEx {
               key: key,
               parent: value,
               id: propValue[EncodeKey.Reference]
-            })
+            });
           }
           (value as unknown as Record<string, unknown>)[key] = this._decode(
-            (value as unknown as Record<string, object>)[key], opt
+            (value as unknown as Record<string, object>)[key],
+            opt
           );
         }
       }
     }
     return value;
-  };
-
+  }
 
   /**
-  * @static
-  * @method _resetPrototype
-  * @param {Object} value
-  * @param {Object} prototype
-  * @return {Object}
-  * @private
-  */
+   * @static
+   * @method _resetPrototype
+   * @param {Object} value
+   * @param {Object} prototype
+   * @return {Object}
+   * @private
+   */
   private static _resetPrototype<T>(value: object, prototype?: new () => T): T {
     // if (Object.setPrototypeOf !== undefined) {
     //   Object.setPrototypeOf(value, prototype);
@@ -248,23 +247,23 @@ export class JsonEx {
     } else {
       return value as unknown as T;
     }
-  };
+  }
 
   /** Recover objects after encoding */
   private static _restoreCircularReference(circulars: Array<Circular>) {
     for (const circular of circulars) {
       const { key, parent, value } = circular;
       (parent as unknown as Record<string, object>)[key] = value!;
-    };
-  };
+    }
+  }
 
   /** Link objects after decoding */
   private static _linkCircularReference(circulars: Array<Circular>, registry: Record<number, object>) {
     for (const circular of circulars) {
       const { key, parent, id } = circular;
       (parent as unknown as Record<string, object>)[key] = registry[id!];
-    };
-  };
+    }
+  }
 
   private static _cleanMetadata(obj: object) {
     if (!obj) return;
@@ -279,37 +278,39 @@ export class JsonEx {
         }
       }
     }
-  };
+  }
 
   /**
-  * Converts an object to a JSON string with object information.
-  *
-  * @static
-  * @method stringify
-  * @param {Object} object The object to be converted
-  * @return {String} The JSON string
-  */
+   * Converts an object to a JSON string with object information.
+   *
+   * @static
+   * @method stringify
+   * @param {Object} object The object to be converted
+   * @return {String} The JSON string
+   */
   public static stringify(obj: object) {
     const circulars: Array<Circular> = [];
-    const json = JSON.stringify(this._encode(obj, {
-      circulars: circulars,
-      depth: 0,
-      maxId: 1,
-    }));
+    const json = JSON.stringify(
+      this._encode(obj, {
+        circulars: circulars,
+        depth: 0,
+        maxId: 1
+      })
+    );
     this._cleanMetadata(obj);
     this._restoreCircularReference(circulars);
 
     return json;
-  };
+  }
 
   /**
-  * Parses a JSON string and reconstructs the corresponding object.
-  *
-  * @static
-  * @method parse
-  * @param {String} json The JSON string
-  * @return {Object} The reconstructed object
-  */
+   * Parses a JSON string and reconstructs the corresponding object.
+   *
+   * @static
+   * @method parse
+   * @param {String} json The JSON string
+   * @return {Object} The reconstructed object
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public static parse(json: string): any {
     const circulars: Array<Circular> = [];
@@ -317,23 +318,23 @@ export class JsonEx {
     const contents = this._decode(JSON.parse(json), {
       circulars: circulars,
       registry: registry,
-      depth: 0,
+      depth: 0
     });
     this._cleanMetadata(contents as object);
     this._linkCircularReference(circulars, registry);
 
     return contents;
-  };
+  }
 
   /**
-  * Makes a deep copy of the specified object.
-  *
-  * @static
-  * @method makeDeepCopy
-  * @param {Object} object The object to be copied
-  * @return {Object} The copied object
-  */
+   * Makes a deep copy of the specified object.
+   *
+   * @static
+   * @method makeDeepCopy
+   * @param {Object} object The object to be copied
+   * @return {Object} The copied object
+   */
   public static makeDeepCopy<T extends object>(obj: T): T {
     return this.parse(this.stringify(obj)) as T;
-  };
+  }
 }
