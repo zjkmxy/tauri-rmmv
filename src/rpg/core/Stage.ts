@@ -22,7 +22,6 @@ export class Stage extends PIXI.Container {
   }
 
   /** The frame-independent update. Approximately 60 FPS. */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public updateDelta(delta: number) {
     this.updateChildrenDelta(delta);
   }

@@ -70,7 +70,7 @@ export class CounterInterpolator implements Interpolator {
     this._cumulated += delta;
     if (this._cumulated >= this.inteval) {
       const cnt = Math.floor(this._cumulated / this.inteval);
-      this._current += cnt;
+      this._current = (this._current + cnt) % this.bound;
       this._cumulated -= cnt * this.inteval;
     }
     return this._current;
