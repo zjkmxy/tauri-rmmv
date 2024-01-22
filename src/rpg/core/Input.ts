@@ -299,13 +299,15 @@ const _onKeyDown = (event: KeyboardEvent) => {
     clear();
   }
   const buttonName = keyMapper[event.code];
-  // TODO: ResourceHandler
+  // NOTE: Does not make sense
   // if (ResourceHandler.exists() && buttonName === 'ok') {
   //   ResourceHandler.retry();
   // } else if (buttonName) {
   //   _currentState[buttonName] = true;
   // }
-  if (buttonName) _currentState[buttonName] = true;
+  if (buttonName) { 
+    _currentState[buttonName] = true;
+  }
 };
 
 /**

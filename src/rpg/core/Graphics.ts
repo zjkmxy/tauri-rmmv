@@ -1,6 +1,7 @@
 /** @module The module that carries out graphics processing. */
 import * as PIXI from 'pixi.js';
 import { numberClamp } from './JsExtensions';
+// import * as ResourceHandler from './ResourceHandler';
 
 const _cssFontLoading = Boolean(document.fonts && document.fonts.ready && document.fonts.ready.then);
 let _fontLoaded: FontFaceSet | undefined;
@@ -24,7 +25,6 @@ let _videoUnlocked: boolean = false;
 let _videoLoading: boolean = false;
 let _upperCanvas: HTMLCanvasElement | undefined;
 // let _renderer: PIXI.Renderer | undefined
-// TODO: export Ticker
 let _application: PIXI.Application | undefined;
 // let _fpsMeter: FPSMeter | undefined
 let _modeBox: HTMLDivElement | undefined;
@@ -405,7 +405,8 @@ export const printLoadingError = (url: string) => {
       event.stopPropagation();
     });
     button.addEventListener('click', () => {
-      // ResourceHandler.retry();  // TODO: core ResourceHandler
+      // Does not make sense: the file is already missing
+      // ResourceHandler.retry();
     });
     _errorPrinter.appendChild(button);
     _loadingCount = -Infinity;

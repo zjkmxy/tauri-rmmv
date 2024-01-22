@@ -8,6 +8,7 @@ import * as ImageManager from '../managers/ImageManager';
 import * as Graphics from '../core/Graphics';
 import * as SceneManager from '../managers/SceneManager';
 import { Scene_Title } from './Scene_Title';
+import { Window_TitleCommand } from '../windows/Window_TitleCommand';
 
 export class Scene_Boot extends Scene_Base {
   protected _startDate;
@@ -64,7 +65,7 @@ export class Scene_Boot extends Scene_Base {
 
   public start() {
     super.start();
-    // TODO: DataManager, SoundManager, Window_TitleCommand
+    // TODO: DataManager, SoundManager
     // SoundManager.preloadImportantSounds();
     // if (DataManager.isBattleTest()) {
     //   DataManager.setupBattleTest();
@@ -79,6 +80,7 @@ export class Scene_Boot extends Scene_Base {
     //   Window_TitleCommand.initCommandPosition();
     // }
     SceneManager.gotoScene(Scene_Title);
+    Window_TitleCommand.initCommandPosition();
     this.updateDocumentTitle();
   }
 

@@ -3,7 +3,7 @@ import * as PIXI from 'pixi.js';
 /**
  * The root object of the display tree.
  */
-export class Stage extends PIXI.Container {
+export class Stage extends PIXI.Container implements Disposable {
   constructor() {
     super();
 
@@ -54,6 +54,10 @@ export class Stage extends PIXI.Container {
         child.updateDelta(delta);
       }
     }
+  }
+
+  [Symbol.dispose](): void {
+    this.destroy();
   }
 
   /**
