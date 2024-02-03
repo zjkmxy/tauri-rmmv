@@ -57,7 +57,7 @@ export class Stage extends PIXI.Container implements Disposable {
   }
 
   [Symbol.dispose](): void {
-    this.destroy();
+    this.destroy({ children: true });
   }
 
   /**

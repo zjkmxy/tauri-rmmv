@@ -10,7 +10,7 @@ import * as Graphics from '../core/Graphics';
  * @class ScreenSprite
  * @constructor
  */
-export class ScreenSprite extends PIXI.Container {
+export class ScreenSprite extends PIXI.Container implements Disposable {
   protected readonly _graphics;
 
   protected _red = -1;
@@ -31,6 +31,10 @@ export class ScreenSprite extends PIXI.Container {
   public destroy() {
     this._graphics.destroy();
     super.destroy();
+  }
+
+  [Symbol.dispose](): void {
+    this.destroy();
   }
 
   /**
