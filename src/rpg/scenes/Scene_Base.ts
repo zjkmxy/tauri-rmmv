@@ -204,7 +204,6 @@ export class Scene_Base extends Stage {
    */
   public addWindow(window: CoreWindow) {
     this._windowLayer!.addChild(window);
-    this.addChild(window);
   }
 
   /**
@@ -322,8 +321,7 @@ export class Scene_Base extends Stage {
    * @memberof Scene_Base
    */
   public fadeOutAll() {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const time = this.slowFadeSpeed() / 60;
+    // const time = this.slowFadeSpeed() / 60;
     // TODO: AudioManager
     // AudioManager.fadeOutBgm(time);
     // AudioManager.fadeOutBgs(time);
