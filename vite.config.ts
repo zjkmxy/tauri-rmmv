@@ -21,7 +21,7 @@ export default defineConfig({
   },
   esbuild: {
     // This is required by PIXI.JS 8.0
-    minifyIdentifiers: false,
+    // minifyIdentifiers: false,
     // Actually mangleCache is not used
     mangleCache: {
       cu: false,
