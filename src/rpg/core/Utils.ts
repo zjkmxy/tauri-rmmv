@@ -5,7 +5,8 @@
  * @class Utils
  */
 
-import { fs, path } from '@tauri-apps/api';
+import {  path } from '@tauri-apps/api';
+import * as fs from "@tauri-apps/plugin-fs"
 
 /**
  * The name of the RPG Maker. 'MV' in the current version.
@@ -177,7 +178,7 @@ export const isSupportPassiveEvent = function () {
 
 export const readWwwFile = async (fileUri: string) => {
   const filePath = await path.resolveResource('../www/' + fileUri);
-  return await fs.readBinaryFile(filePath, {});
+  return await fs.readFile(filePath, {});
 };
 
 export const functionForward = <Args extends Array<unknown>, T>(func: (...args: Args) => T, ...args: Args) =>

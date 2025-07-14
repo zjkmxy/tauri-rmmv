@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api';
+import { invoke } from '@tauri-apps/api/core';
 import * as Graphics from '../core/Graphics';
 import * as Input from '../core/Input';
 import * as ImageManager from './ImageManager';
