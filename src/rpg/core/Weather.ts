@@ -20,7 +20,7 @@ export type WeatherType = 'none' | 'rain' | 'storm' | 'snow';
 export class Weather extends Stage {
   protected _type: WeatherType = 'none';
   protected _power: number = 0;
-  protected _origin: PIXI.PointData = new PIXI.Point(0, 0);
+  protected _scrollOrigin: PIXI.PointData = new PIXI.Point(0, 0);
   protected readonly _sprites: PIXI.Graphics[] = [];
   protected readonly _dimmerSprite: ScreenSprite;
   protected readonly _rainBitmap: PIXI.Graphics;
@@ -139,12 +139,12 @@ export class Weather extends Stage {
    * @property origin
    * @type Point
    */
-  public get origin() {
-    return this._origin;
+  public get scrollOrigin() {
+    return this._scrollOrigin;
   }
 
-  public set origin(value: PIXI.PointData) {
-    this._origin = new PIXI.Point(value.x, value.y);
+  public set scrollOrigin(value: PIXI.PointData) {
+    this._scrollOrigin = new PIXI.Point(value.x, value.y);
     // NOTE: In this implementation, we set the sprite's position to simulate origin.
 
     this._boundOrigin();

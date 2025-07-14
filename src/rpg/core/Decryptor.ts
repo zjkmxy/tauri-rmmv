@@ -16,7 +16,7 @@ export const checkImgIgnore = (url: string) => {
   return false;
 };
 
-export const decryptUrl = async (url: string): Promise<ArrayBuffer | undefined> => {
+export const decryptUrl = async (url: string): Promise<Uint8Array | undefined> => {
   // url = extToEncryptExt(url);
   const fileUrl = extToEncryptExt(url);
 
@@ -80,7 +80,7 @@ export const decryptUrl = async (url: string): Promise<ArrayBuffer | undefined> 
 // export const decryptArrayBuffer = (arrayBuffer: ArrayBuffer) => {
 export const decryptArrayBuffer = (arrayBuffer: Uint8Array) => {
   if (!arrayBuffer) return undefined;
-  const header = new Uint8Array(arrayBuffer, 0, _headerlength);
+  const header = new Uint8Array(arrayBuffer.buffer, arrayBuffer.byteOffset, _headerlength);
 
   let i;
   const ref = SIGNATURE + VER + REMAIN;

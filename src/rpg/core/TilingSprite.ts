@@ -24,7 +24,7 @@ export class TilingSprite extends Stage {
   readonly impl: PIXI.TilingSprite;
   _frame: PIXI.Rectangle;
   public readonly spriteId: number;
-  private _origin: PIXI.PointData = new PIXI.Point();
+  private _scrollOrigin: PIXI.PointData = new PIXI.Point();
 
   constructor(
     public readonly source: PIXI.TextureSource,
@@ -139,13 +139,13 @@ export class TilingSprite extends Stage {
    * @property origin
    * @type Point
    */
-  public get origin() {
-    return this._origin;
+  public get scrollOrigin() {
+    return this._scrollOrigin;
   }
 
-  public set origin(value: PIXI.PointData) {
-    this._origin = value;
-    this.impl.tilePosition = new PIXI.Point(Math.round(-this._origin.x), Math.round(-this._origin.y));
+  public set scrollOrigin(value: PIXI.PointData) {
+    this._scrollOrigin = value;
+    this.impl.tilePosition = new PIXI.Point(Math.round(-this._scrollOrigin.x), Math.round(-this._scrollOrigin.y));
   }
 
   static async load(fullPath: string, opt?: TilingSpriteOptions) {

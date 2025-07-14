@@ -9,7 +9,7 @@ import * as SceneManager from '../managers/SceneManager';
 import * as Graphics from '../core/Graphics';
 import { Sprite } from '../core/Sprite';
 import { Bitmap } from '../core/Bitmap';
-import * as PIXI from 'pixi.js';
+// import * as PIXI from 'pixi.js';
 import { ImageSprite } from '../next/ImageSprite';
 import { Window_TitleCommand } from '../windows/Window_TitleCommand';
 
@@ -107,7 +107,7 @@ export class Scene_Title extends Scene_Base {
     // sprite.anchor.x = 0.5;
     // sprite.anchor.y = 0.5;
     sprite.position = { x: Graphics.default.width / 2, y: Graphics.default.height / 2 };
-    sprite.anchor = new PIXI.Point(0.5, 0.5);
+    sprite.anchor = { x: 0.5, y: 0.5 };
   }
 
   public createCommandWindow() {

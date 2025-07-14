@@ -305,7 +305,7 @@ const _onKeyDown = (event: KeyboardEvent) => {
   // } else if (buttonName) {
   //   _currentState[buttonName] = true;
   // }
-  if (buttonName) { 
+  if (buttonName) {
     _currentState[buttonName] = true;
   }
 };

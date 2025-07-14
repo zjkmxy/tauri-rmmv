@@ -30,15 +30,15 @@ export abstract class Tilemap extends Stage {
   /**
    * The origin point of the tilemap for scrolling.
    */
-  _origin = new PIXI.Point();
+  _scrollOrigin = new PIXI.Point();
 
-  get origin(): PIXI.Point {
-    return this._origin;
+  get scrollOrigin(): PIXI.Point {
+    return this._scrollOrigin;
   }
 
-  set origin(value: PIXI.PointData) {
-    if (value.x !== this._origin.x || value.y !== this._origin.y) {
-      this._origin = new PIXI.Point(value.x, value.y);
+  set scrollOrigin(value: PIXI.PointData) {
+    if (value.x !== this._scrollOrigin.x || value.y !== this._scrollOrigin.y) {
+      this._scrollOrigin = new PIXI.Point(value.x, value.y);
       this._repaint(false);
     }
   }

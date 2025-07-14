@@ -1184,7 +1184,7 @@ const _createRenderer = async () => {
   // }
   _updateCanvas();
   _application = new PIXI.Application();
-  await _application.init({ resizeTo: _canvas, canvas: _canvas, autoDensity: false });
+  await _application.init({ resizeTo: _canvas, canvas: _canvas, autoDensity: false, preference: 'webgpu' });
 
   setInterval(() => {
     if (_fpsText && _application && _application.ticker) {

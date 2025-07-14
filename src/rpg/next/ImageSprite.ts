@@ -253,15 +253,12 @@ export class ImageSprite extends Stage {
 
   /**
    * The origin point of the sprite. (0,0) to (1,1).
-   *
-   * @property anchor
-   * @type Point
    */
-  get anchor() {
+  get anchor(): PIXI.ObservablePoint {
     return this.impl.anchor;
   }
 
-  set anchor(value) {
+  set anchor(value: PIXI.PointData | number) {
     this.impl.anchor = value;
   }
 

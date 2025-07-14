@@ -38,11 +38,8 @@ export class CoreWindow extends Stage {
 
   /**
    * The origin point of the window for scrolling.
-   *
-   * @property origin
-   * @type Point
    */
-  public origin = new PIXI.Point();
+  public scrollOrigin = new PIXI.Point();
 
   /**
    * The active state for the window.
