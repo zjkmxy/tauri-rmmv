@@ -82,7 +82,7 @@ export class Window_Command<Key extends string, Ext = never> extends Window_Sele
     return this.currentData()?.ext;
   }
 
-  public findSymbol(symbol: string) {
+  public findSymbol(symbol: Key) {
     for (let i = 0; i < this._list.length; i++) {
       if (this._list[i].symbol === symbol) {
         return i;
@@ -91,7 +91,7 @@ export class Window_Command<Key extends string, Ext = never> extends Window_Sele
     return -1;
   }
 
-  public selectSymbol(symbol: string) {
+  public selectSymbol(symbol: Key) {
     const index = this.findSymbol(symbol);
     if (index >= 0) {
       this.select(index);
@@ -136,13 +136,21 @@ export class Window_Command<Key extends string, Ext = never> extends Window_Sele
 
   public callOkHandler() {
     const symbol = this.currentSymbol();
-    if (this.isHandled(symbol)) {
-      this.callHandler(symbol);
-    } else if (this.isHandled('ok')) {
-      super.callOkHandler();
-    } else {
-      this.activate();
+    if(symbol && this.emit(symbol)) {
+      return;
     }
+    if(symbol && this.emit('ok')) {
+      return;
+    }
+    this.activate();
+  }
+
+  public async waitForCommand() {
+    return new Promise<Key | undefined>((resolve) => {
+      this.once('ok', () => {
+        resolve(this.currentSymbol());
+      });
+    });
   }
 
   public refresh() {

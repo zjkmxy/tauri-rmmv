@@ -25,9 +25,11 @@ export class Scene_Base extends Stage {
   // protected _fadeSign: number = 0;
   // protected _fadeDuration: number = 0;
   protected _fadeInterpolator: Interpolator | undefined;
+  protected _fadeResolver: (() => void) | undefined;
   protected _fadeSprite: ScreenSprite | undefined = undefined;
   readonly _imageReservationId: number;
   protected _windowLayer: WindowLayer | undefined;
+  protected _mainRunning: boolean = false;
 
   /**
    * Constructor
@@ -165,7 +167,7 @@ export class Scene_Base extends Stage {
    */
   public isBusy(): boolean {
     // return this._fadeDuration > 0;
-    return !!this._fadeInterpolator;
+    return !!this._fadeInterpolator || this._mainRunning;
   }
 
   /**
@@ -216,12 +218,16 @@ export class Scene_Base extends Stage {
    * @instance
    * @memberof Scene_Base
    */
-  public startFadeIn(duration = 30, white = false) {
+  public startFadeIn(duration = 30, white = false): Promise<void> {
     this.createFadeSprite(white);
     // this._fadeSign = 1;
     // this._fadeDuration = duration;
     this._fadeInterpolator = LinearInterpolator.fromFrame(255, 0, duration);
     this._fadeSprite!.opacity = 255;
+
+    return new Promise<void>((resolve) => {
+      this._fadeResolver = resolve;
+    });
   }
 
   /**
@@ -234,12 +240,16 @@ export class Scene_Base extends Stage {
    * @instance
    * @memberof Scene_Base
    */
-  public startFadeOut(duration = 30, white = false) {
+  public startFadeOut(duration = 30, white = false): Promise<void> {
     this.createFadeSprite(white);
     // this._fadeSign = -1;
     // this._fadeDuration = duration;
     this._fadeInterpolator = LinearInterpolator.fromFrame(0, 255, duration);
     this._fadeSprite!.opacity = 0;
+
+    return new Promise<void>((resolve) => {
+      this._fadeResolver = resolve;
+    });
   }
 
   /**
@@ -282,7 +292,9 @@ export class Scene_Base extends Stage {
     if (this._fadeInterpolator) {
       this._fadeSprite!.opacity = this._fadeInterpolator.updateDelta(delta);
       if (this._fadeInterpolator.done) {
+        this._fadeResolver?.();
         this._fadeInterpolator = undefined;
+        this._fadeResolver = undefined;
       }
     }
   }
@@ -320,13 +332,13 @@ export class Scene_Base extends Stage {
    * @instance
    * @memberof Scene_Base
    */
-  public fadeOutAll() {
+  public async fadeOutAll() {
     // const time = this.slowFadeSpeed() / 60;
     // TODO: AudioManager
     // AudioManager.fadeOutBgm(time);
     // AudioManager.fadeOutBgs(time);
     // AudioManager.fadeOutMe(time);
-    this.startFadeOut(this.slowFadeSpeed());
+    return await this.startFadeOut(this.slowFadeSpeed());
   }
 
   /**
@@ -351,5 +363,13 @@ export class Scene_Base extends Stage {
    */
   public slowFadeSpeed() {
     return this.fadeSpeed() * 2;
+  }
+
+  public async main() {}
+
+  public async startMain() {
+    this._mainRunning = true;
+    await this.main();
+    this._mainRunning = false;
   }
 }

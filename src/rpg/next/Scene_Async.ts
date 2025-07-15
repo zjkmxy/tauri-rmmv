@@ -10,5 +10,9 @@ export class Scene_Async extends Scene_Base {
     super();
   }
 
-  protected async main() {}
+  public override start() {
+    super.start();
+  }
+
+  public override async main() {}
 }

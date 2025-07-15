@@ -303,6 +303,8 @@ export const updateScene = (ticker: PIXI.Ticker) => {
     if (!_sceneStarted && _scene.isReady()) {
       _scene.start();
       _sceneStarted = true;
+      // For async scene, start the main function
+      _scene.startMain();
       onSceneStart();
     }
     if (isCurrentSceneStarted()) {

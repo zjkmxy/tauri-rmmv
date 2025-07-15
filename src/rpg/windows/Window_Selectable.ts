@@ -12,6 +12,7 @@ import * as PIXI from 'pixi.js';
 export type SelectableHandler = () => void;
 export type SelectableHandlerSet<Key extends string> = Partial<Record<Key, SelectableHandler>>;
 
+// TODO: Should we use Symbol?
 export type SelectableKey = 'ok' | 'cancel' | 'pageup' | 'pagedown';
 
 /** The window class with cursor movement and scroll functions. */
@@ -20,8 +21,8 @@ export abstract class Window_Selectable<Key extends string> extends Window_Base 
   protected _cursorFixed = false;
   protected _cursorAll = false;
   protected _stayCount = 0;
-  protected _helpWindow: Window_Base | undefined;
-  protected _handlers: SelectableHandlerSet<Key | SelectableKey> = {};
+  // protected _helpWindow: Window_Base | undefined;
+  // protected _handlers: SelectableHandlerSet<Key | SelectableKey> = {};
   protected _touching = false;
   protected _scrollX = 0;
   protected _scrollY = 0;
@@ -94,7 +95,7 @@ export abstract class Window_Selectable<Key extends string> extends Window_Base 
     this._stayCount = 0;
     this.ensureCursorVisible();
     this.updateCursor();
-    this.callUpdateHelp();
+    this.emit('select', this._index);
   }
 
   public deselect() {
@@ -172,39 +173,41 @@ export abstract class Window_Selectable<Key extends string> extends Window_Base 
     return rect;
   }
 
-  public get helpWindow() {
-    return this._helpWindow;
-  }
+  // public get helpWindow() {
+  //   return this._helpWindow;
+  // }
 
-  public set helpWindow(helpWindow: Window_Base | undefined) {
-    this._helpWindow = helpWindow;
-    this.callUpdateHelp();
-  }
+  // public set helpWindow(helpWindow: Window_Base | undefined) {
+  //   this._helpWindow = helpWindow;
+  //   this.callUpdateHelp();
+  // }
 
-  public showHelpWindow() {
-    if (this._helpWindow) {
-      this._helpWindow.show();
-    }
-  }
+  // public showHelpWindow() {
+  //   if (this._helpWindow) {
+  //     this._helpWindow.show();
+  //   }
+  // }
 
-  public hideHelpWindow() {
-    if (this._helpWindow) {
-      this._helpWindow.hide();
-    }
-  }
+  // public hideHelpWindow() {
+  //   if (this._helpWindow) {
+  //     this._helpWindow.hide();
+  //   }
+  // }
 
   public setHandler(symbol: Key | SelectableKey, method: SelectableHandler) {
-    this._handlers[symbol] = method;
+    this.removeAllListeners(symbol);
+    this.on(symbol, method);
   }
 
   public isHandled(symbol?: Key | SelectableKey) {
-    return symbol && !!this._handlers[symbol];
+    return symbol && this.listenerCount(symbol) > 0;
   }
 
-  public callHandler(symbol?: Key | SelectableKey) {
+  public callHandler(symbol?: Key | SelectableKey): boolean {
     if (symbol) {
-      this._handlers[symbol]?.();
+      return this.emit(symbol);
     }
+    return false;
   }
 
   public isOpenAndActive() {
@@ -475,7 +478,7 @@ export abstract class Window_Selectable<Key extends string> extends Window_Base 
   }
 
   public callOkHandler() {
-    this.callHandler('ok');
+    this.emit('ok');
   }
 
   public processCancel() {
@@ -487,7 +490,7 @@ export abstract class Window_Selectable<Key extends string> extends Window_Base 
   }
 
   public callCancelHandler() {
-    this.callHandler('cancel');
+    this.emit('cancel');
   }
 
   public processPageup() {
@@ -495,7 +498,7 @@ export abstract class Window_Selectable<Key extends string> extends Window_Base 
     // SoundManager.playCursor();
     this.updateInputData();
     this.deactivate();
-    this.callHandler('pageup');
+    this.emit('pageup');
   }
 
   public processPagedown() {
@@ -503,7 +506,7 @@ export abstract class Window_Selectable<Key extends string> extends Window_Base 
     // SoundManager.playCursor();
     this.updateInputData();
     this.deactivate();
-    this.callHandler('pagedown');
+    this.emit('pagedown');
   }
 
   public updateInputData() {
@@ -536,25 +539,6 @@ export abstract class Window_Selectable<Key extends string> extends Window_Base 
     } else if (row > this.bottomRow()) {
       this.setBottomRow(row);
     }
-  }
-
-  public callUpdateHelp() {
-    if (this.active && this._helpWindow) {
-      this.updateHelp();
-    }
-  }
-
-  public updateHelp() {
-    // TODO: Help window
-    // this._helpWindow?.clear();
-  }
-
-  public setHelpWindowItem(item: unknown) {
-    item;
-    // TODO: Help window
-    // if (this._helpWindow) {
-    //   this._helpWindow.setItem(item);
-    // }
   }
 
   public isCurrentItemEnabled() {
