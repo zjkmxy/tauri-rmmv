@@ -3,7 +3,7 @@
 //
 // The scene class for asynchronous operations.
 
-import { Scene_Base } from '../scenes/Scene_Base';
+import { Scene_Base } from "../scenes/Scene_Base";
 
 export type SceneAsyncExecutor = (scene: Scene_Async) => Promise<void>;
 
@@ -20,8 +20,16 @@ export class Scene_Async extends Scene_Base {
     super();
     this._disposableStack = new DisposableStack();
     this._executor = executor;
-    this._createdPromise = new Promise((resolve) => (this._createdResolver = resolve));
-    this._startedPromise = new Promise((resolve) => (this._startedResolver = resolve));
+    this._createdPromise = new Promise((
+      resolve,
+    ) => (this._createdResolver = resolve));
+    this._startedPromise = new Promise((
+      resolve,
+    ) => (this._startedResolver = resolve));
+  }
+
+  public get disposableStack() {
+    return this._disposableStack;
   }
 
   public override async create() {
@@ -43,7 +51,7 @@ export class Scene_Async extends Scene_Base {
     this._mainRunning = false;
   }
 
-  public async finishCreate() {
+  public async finishCreation() {
     // Signal the end of create()
     this._createdResolver!();
     // Wait for start() to be called
@@ -53,7 +61,7 @@ export class Scene_Async extends Scene_Base {
   public override updateDelta(delta: number): void {
     super.updateDelta(delta);
     // Signal update if needed
-    this.emit('updateDelta', delta);
+    this.emit("updateDelta", delta);
   }
 
   public override async main() {
@@ -64,4 +72,14 @@ export class Scene_Async extends Scene_Base {
     super.terminate();
     this._disposableStack.dispose();
   }
+}
+
+export const makeAsyncScene = (
+  executor: SceneAsyncExecutor,
+) => {
+  return class extends Scene_Async {
+    constructor() {
+      super(executor);
+    }
+  };
 }

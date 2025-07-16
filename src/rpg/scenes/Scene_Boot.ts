@@ -63,7 +63,7 @@ export class Scene_Boot extends Scene_Base {
     }
   }
 
-  public start() {
+  public async start() {
     super.start();
     // TODO: DataManager, SoundManager
     // SoundManager.preloadImportantSounds();
