@@ -136,10 +136,10 @@ export class Window_Command<Key extends string, Ext = never> extends Window_Sele
 
   public callOkHandler() {
     const symbol = this.currentSymbol();
-    if(symbol && this.emit(symbol)) {
+    if (symbol && this.emit(symbol)) {
       return;
     }
-    if(symbol && this.emit('ok')) {
+    if (symbol && this.emit('ok')) {
       return;
     }
     this.activate();

@@ -117,8 +117,11 @@ export class Scene_Base extends Stage {
    * @instance
    * @memberof Scene_Base
    */
-  public start() {
+  public async start() {
     this._active = true;
+    this._mainRunning = true;
+    await this.main();
+    this._mainRunning = false;
   }
 
   /**
@@ -366,10 +369,4 @@ export class Scene_Base extends Stage {
   }
 
   public async main() {}
-
-  public async startMain() {
-    this._mainRunning = true;
-    await this.main();
-    this._mainRunning = false;
-  }
 }

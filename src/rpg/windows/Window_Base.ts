@@ -3,11 +3,11 @@
 //
 // The superclass of all windows within the game.
 
-import { Sprite } from "../core/Sprite";
-import { CoreWindow } from "../core/Window";
-import * as PIXI from "pixi.js";
-import * as ImageManager from "../managers/ImageManager";
-import { Bitmap } from "../core/Bitmap";
+import { Sprite } from '../core/Sprite';
+import { CoreWindow } from '../core/Window';
+import * as PIXI from 'pixi.js';
+import * as ImageManager from '../managers/ImageManager';
+import { Bitmap } from '../core/Bitmap';
 
 export type TextState = {
   text: string;
@@ -55,7 +55,7 @@ export class Window_Base extends CoreWindow {
     // } else {
     //   return 'GameFont';
     // }
-    return "GameFont";
+    return 'GameFont';
   }
 
   public standardFontSize() {
@@ -75,7 +75,7 @@ export class Window_Base extends CoreWindow {
   }
 
   public loadWindowskin() {
-    this.windowskin = ImageManager.loadSystem("Window");
+    this.windowskin = ImageManager.loadSystem('Window');
   }
 
   public updatePadding() {
@@ -281,13 +281,7 @@ export class Window_Base extends CoreWindow {
     this.contents!.paintOpacity = enabled ? 255 : this.translucentOpacity();
   }
 
-  public drawText(
-    text: string,
-    x: number,
-    y: number,
-    maxWidth: number,
-    align: CanvasTextAlign,
-  ) {
+  public drawText(text: string, x: number, y: number, maxWidth: number, align: CanvasTextAlign) {
     this.contents!.drawText(text, x, y, maxWidth, this.lineHeight(), align);
   }
 
@@ -304,7 +298,7 @@ export class Window_Base extends CoreWindow {
         y: y,
         left: x,
         text: processedText,
-        height: this.calcTextHeight({ text: processedText, index: 0 }, false),
+        height: this.calcTextHeight({ text: processedText, index: 0 }, false)
       };
       textState.height = this.calcTextHeight(textState, false);
       this.resetFontSettings();
@@ -320,7 +314,7 @@ export class Window_Base extends CoreWindow {
   public convertEscapeCharacters(text: string) {
     // TODO: gameVariables, TextManager, gameActors, gameParty
     // text = text.replace(/\\/g, '\x1b');  // Remove the use of \x1b = ESC
-    text = text.replace(/\\\\/g, "\\");
+    text = text.replace(/\\\\/g, '\\');
     text = text.replace(/\\V\[(\d+)\]/gi, (_, p1) => {
       // return $gameVariables.value(parseInt(p1));
       return p1;
@@ -359,17 +353,14 @@ export class Window_Base extends CoreWindow {
 
   public processCharacter(textState: TextState) {
     switch (textState.text[textState.index]) {
-      case "\n":
+      case '\n':
         this.processNewLine(textState);
         break;
-      case "\f":
+      case '\f':
         this.processNewPage(textState);
         break;
-      case "\\":
-        this.processEscapeCharacter(
-          this.obtainEscapeCode(textState),
-          textState,
-        );
+      case '\\':
+        this.processEscapeCharacter(this.obtainEscapeCode(textState), textState);
         break;
       default:
         this.processNormalCharacter(textState);
@@ -380,13 +371,7 @@ export class Window_Base extends CoreWindow {
   public processNormalCharacter(textState: TextState) {
     const c = textState.text[textState.index++];
     const w = this.textWidth(c);
-    this.contents!.drawText(
-      c,
-      textState.x,
-      textState.y,
-      w * 2,
-      textState.height,
-    );
+    this.contents!.drawText(c, textState.x, textState.y, w * 2, textState.height);
     textState.x += w;
   }
 
@@ -409,7 +394,7 @@ export class Window_Base extends CoreWindow {
       textState.index += arr[0].length;
       return arr[0].toUpperCase();
     } else {
-      return "";
+      return '';
     }
   }
 
@@ -425,18 +410,16 @@ export class Window_Base extends CoreWindow {
 
   public processEscapeCharacter(code: string, textState: TextState) {
     switch (code) {
-      case "C":
-        this.changeTextColor(
-          this.textColor(this.obtainEscapeParam(textState))!,
-        );
+      case 'C':
+        this.changeTextColor(this.textColor(this.obtainEscapeParam(textState))!);
         break;
-      case "I":
+      case 'I':
         this.processDrawIcon(this.obtainEscapeParam(textState), textState);
         break;
-      case "{":
+      case '{':
         this.makeFontBigger();
         break;
-      case "}":
+      case '}':
         this.makeFontSmaller();
         break;
     }
@@ -459,16 +442,13 @@ export class Window_Base extends CoreWindow {
     }
   }
 
-  public calcTextHeight(
-    textState: { text: string; index: number },
-    all: boolean,
-  ) {
+  public calcTextHeight(textState: { text: string; index: number }, all: boolean) {
     if (!this.contents) {
       return 0;
     }
     const lastFontSize = this.contents.fontSize;
     let textHeight = 0;
-    const lines = textState.text.slice(textState.index).split("\n");
+    const lines = textState.text.slice(textState.index).split('\n');
     const maxLines = all ? lines.length : 1;
 
     for (let i = 0; i < maxLines; i++) {
@@ -477,10 +457,10 @@ export class Window_Base extends CoreWindow {
       for (;;) {
         const array = regExp.exec(lines[i]);
         if (array) {
-          if (array[0] === "\\{") {
+          if (array[0] === '\\{') {
             this.makeFontBigger();
           }
-          if (array[0] === "\\}") {
+          if (array[0] === '\\}') {
             this.makeFontSmaller();
           }
           if (maxFontSize < this.contents.fontSize) {
@@ -498,7 +478,7 @@ export class Window_Base extends CoreWindow {
   }
 
   public drawIcon(iconIndex: number, x: number, y: number) {
-    const bitmap = ImageManager.loadSystem("IconSet");
+    const bitmap = ImageManager.loadSystem('IconSet');
     const pw = Window_Base._iconWidth;
     const ph = Window_Base._iconHeight;
     const sx = (iconIndex % 16) * pw;
@@ -506,14 +486,7 @@ export class Window_Base extends CoreWindow {
     this.contents!.blt(bitmap, sx, sy, pw, ph, x, y);
   }
 
-  public drawFace(
-    faceName: string,
-    faceIndex: number,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-  ) {
+  public drawFace(faceName: string, faceIndex: number, x: number, y: number, width: number, height: number) {
     width = width || Window_Base._faceWidth;
     height = height || Window_Base._faceHeight;
     const bitmap = ImageManager.loadFace(faceName);
@@ -528,12 +501,7 @@ export class Window_Base extends CoreWindow {
     this.contents!.blt(bitmap, sx, sy, sw, sh, dx, dy);
   }
 
-  public drawCharacter(
-    characterName: string,
-    characterIndex: number,
-    x: number,
-    y: number,
-  ) {
+  public drawCharacter(characterName: string, characterIndex: number, x: number, y: number) {
     const bitmap = ImageManager.loadCharacter(characterName);
     const big = ImageManager.isBigCharacter(characterName);
     const pw = bitmap.width / (big ? 3 : 12);
@@ -544,14 +512,7 @@ export class Window_Base extends CoreWindow {
     this.contents!.blt(bitmap, sx, sy, pw, ph, x - pw / 2, y - ph);
   }
 
-  public drawGauge(
-    x: number,
-    y: number,
-    width: number,
-    rate: number,
-    color1: string,
-    color2: string,
-  ) {
+  public drawGauge(x: number, y: number, width: number, rate: number, color1: string, color2: string) {
     const fillW = Math.floor(width * rate);
     const gaugeY = y + this.lineHeight() - 8;
     this.contents!.fillRect(x, gaugeY, width, 6, this.gaugeBackColor()!);
@@ -766,11 +727,11 @@ export class Window_Base extends CoreWindow {
   }
 
   public dimColor1() {
-    return "rgba(0, 0, 0, 0.6)";
+    return 'rgba(0, 0, 0, 0.6)';
   }
 
   public dimColor2() {
-    return "rgba(0, 0, 0, 0)";
+    return 'rgba(0, 0, 0, 0)';
   }
 
   public canvasToLocal({ x, y }: { x: number; y: number }) {

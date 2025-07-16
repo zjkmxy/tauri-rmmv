@@ -5,8 +5,8 @@
  * @class Utils
  */
 
-import {  path } from '@tauri-apps/api';
-import * as fs from "@tauri-apps/plugin-fs"
+import { path } from '@tauri-apps/api';
+import * as fs from '@tauri-apps/plugin-fs';
 
 /**
  * The name of the RPG Maker. 'MV' in the current version.
