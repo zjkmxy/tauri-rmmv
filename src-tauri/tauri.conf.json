@@ -9,7 +9,7 @@
     "active": true,
     "targets": "all",
     "resources": [
-      "../www/*"
+      "../www/**/*"
     ],
     "icon": [
       "icons/32x32.png",

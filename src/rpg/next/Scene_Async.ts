@@ -4,6 +4,7 @@
 // The scene class for asynchronous operations.
 
 import { Scene_Base } from "../scenes/Scene_Base";
+import { DisposableStack } from "../core/DisposableStack";
 
 export type SceneAsyncExecutor = (scene: Scene_Async) => Promise<void>;
 
