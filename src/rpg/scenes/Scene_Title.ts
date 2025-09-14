@@ -12,6 +12,7 @@ import { Bitmap } from "../core/Bitmap";
 import { ImageSprite } from "../next/ImageSprite";
 import { Window_TitleCommand } from "../windows/Window_TitleCommand";
 import { makeAsyncScene } from "../next/Scene_Async";
+import { Scene_MapOnly } from "./Scene_MapOnly";
 
 export const Scene_Title = makeAsyncScene(async (scene) => {
   // Schedule snapshot at termination
@@ -102,6 +103,8 @@ export const Scene_Title = makeAsyncScene(async (scene) => {
     // DataManager.setupNewGame();
     await scene.fadeOutAll();
     // SceneManager.goto(Scene_Map);
+
+    SceneManager.gotoScene(Scene_MapOnly);
   } else if (command == "continue") {
     // TODO: Scene_Load, Window
     // SceneManager.push(Scene_Load);

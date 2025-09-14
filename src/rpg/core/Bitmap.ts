@@ -72,7 +72,7 @@ export class Bitmap {
    * @property fontFace
    * @type String
    */
-  public fontFace = 'GameFont';
+  public fontFace: string = 'GameFont';
 
   /**
    * The size of the font in pixels.
@@ -80,7 +80,7 @@ export class Bitmap {
    * @property fontSize
    * @type Number
    */
-  public fontSize = 28;
+  public fontSize: number = 28;
 
   /**
    * Whether the font is italic.
@@ -88,7 +88,7 @@ export class Bitmap {
    * @property fontItalic
    * @type Boolean
    */
-  public fontItalic = false;
+  public fontItalic: boolean = false;
 
   /**
    * The color of the text in CSS format.
@@ -96,7 +96,7 @@ export class Bitmap {
    * @property textColor
    * @type String
    */
-  public textColor = '#ffffff';
+  public textColor: string = '#ffffff';
 
   /**
    * The color of the outline of the text in CSS format.
@@ -104,7 +104,7 @@ export class Bitmap {
    * @property outlineColor
    * @type String
    */
-  public outlineColor = 'rgba(0, 0, 0, 0.5)';
+  public outlineColor: string = 'rgba(0, 0, 0, 0.5)';
 
   /**
    * The width of the outline of the text.
@@ -112,7 +112,7 @@ export class Bitmap {
    * @property outlineWidth
    * @type Number
    */
-  public outlineWidth = 4;
+  public outlineWidth: number = 4;
 
   static minFontSize = 21;
   static drawSmallTextBitmap = new Bitmap(1632, Bitmap.minFontSize);
@@ -271,7 +271,7 @@ export class Bitmap {
    * @method isReady
    * @return {Boolean} True if the bitmap is ready to render
    */
-  public isReady() {
+  public isReady(): boolean {
     return this._loadingState === 'loaded' || this._loadingState === 'none';
   }
 
@@ -285,7 +285,7 @@ export class Bitmap {
    * @method isError
    * @return {Boolean} True if a loading error has occurred
    */
-  public isError() {
+  public isError(): boolean {
     return this._loadingState === 'error';
   }
 
@@ -527,7 +527,7 @@ export class Bitmap {
    * @param {Number} y The y coordinate of the pixel in the bitmap
    * @return {String} The pixel color (hex format)
    */
-  public getPixel(x: number, y: number) {
+  public getPixel(x: number, y: number): string {
     const data = this._context.getImageData(x, y, 1, 1).data;
     let result = '#';
     for (let i = 0; i < 3; i++) {
@@ -542,9 +542,9 @@ export class Bitmap {
    * @method getAlphaPixel
    * @param {Number} x The x coordinate of the pixel in the bitmap
    * @param {Number} y The y coordinate of the pixel in the bitmap
-   * @return {String} The alpha value
+   * @return {Number} The alpha value
    */
-  public getAlphaPixel(x: number, y: number) {
+  public getAlphaPixel(x: number, y: number): number {
     const data = this._context.getImageData(x, y, 1, 1).data;
     return data[3];
   }
@@ -765,7 +765,7 @@ export class Bitmap {
    * @param {String} text The text to be measured
    * @return {Number} The width of the text in pixels
    */
-  public measureTextWidth(text: string) {
+  public measureTextWidth(text: string): number {
     const context = this._context;
     context.save();
     context.font = this._makeFontNameText();
@@ -1150,7 +1150,7 @@ export class Bitmap {
 
       if (toDecrypt) {
         this._loadingState = BitmapLoadingState.Decrypting;
-        const data = await Decryptor.decryptArrayBuffer(imgContent);
+        const data = Decryptor.decryptArrayBuffer(imgContent);
         if (data) {
           imgContent = data;
         } else {

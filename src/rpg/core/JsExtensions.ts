@@ -14,7 +14,7 @@
  * @param {Number} max The upper boundary
  * @return {Number} A number in the range (min, max)
  */
-export const numberClamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max);
+export const numberClamp = (v: number, min: number, max: number): number => Math.min(Math.max(v, min), max);
 // Number.prototype.clamp = function(min, max) {
 //   return Math.min(Math.max(this, min), max);
 // };
@@ -26,7 +26,7 @@ export const numberClamp = (v: number, min: number, max: number) => Math.min(Mat
  * @param {Number} n The divisor
  * @return {Number} A modulo value
  */
-export const numberMod = (v: number, n: number) => ((v % n) + n) % n;
+export const numberMod = (v: number, n: number): number => ((v % n) + n) % n;
 // Number.prototype.mod = function(n) {
 //   return ((this % n) + n) % n;
 // };
@@ -38,7 +38,7 @@ export const numberMod = (v: number, n: number) => ((v % n) + n) % n;
  * @param {Any} ...args The objects to format
  * @return {String} A formatted string
  */
-export const stringFormat = (v: string, ...args: unknown[]) =>
+export const stringFormat = (v: string, ...args: unknown[]): string =>
   v.replace(/%([0-9]+)/g, (_, n) => String(args[Number(n) - 1]));
 // String.prototype.format = function() {
 //   var args = arguments;
@@ -54,7 +54,7 @@ export const stringFormat = (v: string, ...args: unknown[]) =>
  * @param {Number} length The length of the output string
  * @return {String} A string with leading zeros
  */
-export const stringPadZero = (v: string, length: number) => v.padStart(length, '0');
+export const stringPadZero = (v: string, length: number): string => v.padStart(length, '0');
 // String.prototype.padZero = function (length) {
 //   var s = this;
 //   while (s.length < length) {
@@ -70,7 +70,7 @@ export const stringPadZero = (v: string, length: number) => v.padStart(length, '
  * @param {Number} length The length of the output string
  * @return {String} A string with leading zeros
  */
-export const numberPadZero = (v: number, length: number) => stringPadZero(`${v}`, length);
+export const numberPadZero = (v: number, length: number): string => stringPadZero(`${v}`, length);
 // Number.prototype.padZero = function (length) {
 //   return String(this).padZero(length);
 // };
@@ -130,12 +130,11 @@ export const numberPadZero = (v: number, length: number) => stringPadZero(`${v}`
 
 /**
  * Checks whether the two arrays are same.
- *
  * @method Array.prototype.equals
- * @param {Array} array The array to compare to
+ * @param {Array} lhs The array to compare to
  * @return {Boolean} True if the two arrays are same
  */
-export const arrayEquals = (lhs?: unknown[], rhs?: unknown[]) => {
+export const arrayEquals = (lhs?: unknown[], rhs?: unknown[]): boolean => {
   if (!lhs && !rhs) {
     return true;
   }
@@ -161,7 +160,7 @@ export const arrayEquals = (lhs?: unknown[], rhs?: unknown[]) => {
  * @method Array.prototype.clone
  * @return {Array} A shallow copy of the array
  */
-export const arrayClone = <T>(v: T[]) => v.slice(0);
+export const arrayClone = <T>(v: T[]): Array<any> => v.slice(0);
 
 /**
  * Checks whether the array contains a given element.
@@ -170,7 +169,7 @@ export const arrayClone = <T>(v: T[]) => v.slice(0);
  * @param {Any} element The element to search for
  * @return {Boolean} True if the array contains a given element
  */
-export const arrayContains = (v: unknown[], element: unknown) => v.includes(element);
+export const arrayContains = (v: unknown[], element: unknown): boolean => v.includes(element);
 
 /**
  * Checks whether the string contains a given string.
@@ -179,7 +178,7 @@ export const arrayContains = (v: unknown[], element: unknown) => v.includes(elem
  * @param {String} str The string to search for
  * @return {Boolean} True if the string contains a given string
  */
-export const stringContains = (v: string, str: string) => v.includes(str);
+export const stringContains = (v: string, str: string): boolean => v.includes(str);
 // String.prototype.contains = function (string) {
 //   return this.indexOf(string) >= 0;
 // };
@@ -192,7 +191,7 @@ export const stringContains = (v: string, str: string) => v.includes(str);
  * @param {Number} max The upper boundary (excluded)
  * @return {Number} A random integer
  */
-export const mathRandomInt = (max: number) => Math.floor(max * Math.random());
+export const mathRandomInt = (max: number): number => Math.floor(max * Math.random());
 // Math.randomInt = function (max) {
 //   return Math.floor(max * Math.random());
 // };

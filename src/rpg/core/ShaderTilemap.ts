@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 
-import { CompositeTilemap } from '../../tilemap';
+import { CompositeTilemap } from '@pixi/tilemap';
 import { Tilemap } from './Tilemap';
 
 /**
@@ -65,11 +65,12 @@ export class ShaderTilemap extends Tilemap {
     // const bitmaps = this.bitmaps;
     // this.lowerLayer.tileset(bitmaps);
     // this.upperLayer.tileset(bitmaps);
+    const bitmaps = this.bitmaps.flatMap((value) => (value ? value.source : []));
     for (const layer of this.lowerLayer) {
-      layer.tileset(this.bitmaps);
+      layer.tileset(bitmaps);
     }
     for (const layer of this.upperLayer) {
-      layer.tileset(this.bitmaps);
+      layer.tileset(bitmaps);
     }
   }
 
@@ -113,10 +114,10 @@ export class ShaderTilemap extends Tilemap {
     // this.lowerLayer.setTileAnim({ x, y });
     // this.upperLayer.setTileAnim({ x, y });
     for (const layer of this.lowerLayer) {
-      layer.setTileAnim({ x, y });
+      layer.tileAnim = [x, y];
     }
     for (const layer of this.upperLayer) {
-      layer.setTileAnim({ x, y });
+      layer.tileAnim = [x, y];
     }
   }
 

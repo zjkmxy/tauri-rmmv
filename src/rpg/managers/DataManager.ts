@@ -3,6 +3,8 @@
 // //
 // // The static class that manages the database and game objects.
 
+
+
 // function DataManager() {
 //   throw new Error('This is a static class');
 // }

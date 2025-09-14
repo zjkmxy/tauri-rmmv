@@ -50,7 +50,7 @@ export class TouchInput {
    * @property keyRepeatWait
    * @type Number
    */
-  public static keyRepeatWait = 24;
+  public static keyRepeatWait: number = 24;
 
   /**
    * The interval of the pseudo key repeat in frames.
@@ -59,7 +59,7 @@ export class TouchInput {
    * @property keyRepeatInterval
    * @type Number
    */
-  public static keyRepeatInterval = 6;
+  public static keyRepeatInterval: number = 6;
 
   /**
    * Clears all the touch data.
@@ -121,7 +121,7 @@ export class TouchInput {
    * @method isPressed
    * @return {Boolean} True if the mouse button or touchscreen is pressed
    */
-  public static isPressed() {
+  public static isPressed(): boolean {
     return TouchInput._mousePressed || TouchInput._screenPressed;
   }
 
@@ -132,7 +132,7 @@ export class TouchInput {
    * @method isTriggered
    * @return {Boolean} True if the mouse button or touchscreen is triggered
    */
-  public static isTriggered() {
+  public static isTriggered(): boolean {
     return TouchInput._triggered;
   }
 
@@ -144,7 +144,7 @@ export class TouchInput {
    * @method isRepeated
    * @return {Boolean} True if the mouse button or touchscreen is repeated
    */
-  public static isRepeated() {
+  public static isRepeated(): boolean {
     return (
       TouchInput.isPressed() &&
       (TouchInput._triggered ||
@@ -160,7 +160,7 @@ export class TouchInput {
    * @method isLongPressed
    * @return {Boolean} True if the left mouse button or touchscreen is long-pressed
    */
-  public static isLongPressed() {
+  public static isLongPressed(): boolean {
     return TouchInput.isPressed() && TouchInput._pressedTime >= TouchInput.keyRepeatWait;
   }
 
@@ -171,7 +171,7 @@ export class TouchInput {
    * @method isCancelled
    * @return {Boolean} True if the right mouse button is just pressed
    */
-  public static isCancelled() {
+  public static isCancelled(): boolean {
     return TouchInput._cancelled;
   }
 
@@ -182,7 +182,7 @@ export class TouchInput {
    * @method isMoved
    * @return {Boolean} True if the mouse or a finger on the touchscreen is moved
    */
-  public static isMoved() {
+  public static isMoved(): boolean {
     return TouchInput._moved;
   }
 
@@ -193,7 +193,7 @@ export class TouchInput {
    * @method isReleased
    * @return {Boolean} True if the mouse button or touchscreen is released
    */
-  public static isReleased() {
+  public static isReleased(): boolean {
     return TouchInput._released;
   }
 

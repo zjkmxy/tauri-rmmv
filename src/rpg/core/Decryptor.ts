@@ -78,7 +78,7 @@ export const decryptUrl = async (url: string): Promise<Uint8Array | undefined> =
 // };
 
 // export const decryptArrayBuffer = (arrayBuffer: ArrayBuffer) => {
-export const decryptArrayBuffer = (arrayBuffer: Uint8Array) => {
+export const decryptArrayBuffer = (arrayBuffer: Uint8Array<ArrayBuffer>) => {
   if (!arrayBuffer) return undefined;
   const header = new Uint8Array(arrayBuffer.buffer, arrayBuffer.byteOffset, _headerlength);
 
@@ -86,7 +86,7 @@ export const decryptArrayBuffer = (arrayBuffer: Uint8Array) => {
   const ref = SIGNATURE + VER + REMAIN;
   const refBytes = new Uint8Array(16);
   for (i = 0; i < _headerlength; i++) {
-    refBytes[i] = parseInt('0x' + ref.substr(i * 2, 2), 16);
+    refBytes[i] = parseInt('0x' + ref.substring(i * 2, i * 2 + 2), 16);
   }
   for (i = 0; i < _headerlength; i++) {
     if (header[i] !== refBytes[i]) {

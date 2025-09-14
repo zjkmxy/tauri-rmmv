@@ -183,3 +183,52 @@ export const readWwwFile = async (fileUri: string) => {
 
 export const functionForward = <Args extends Array<unknown>, T>(func: (...args: Args) => T, ...args: Args) =>
   func(...args);
+
+/** Parses base64 string into Uint8Array. Throws if failed. */
+export const base64ToBytes = (base64: string): Uint8Array =>
+  Uint8Array.from(atob(base64), (m) => m.codePointAt(0) || 0);
+
+/** Encodes Uint8Array into base64 string. Throws if failed. */
+export const bytesToBase64 = (bytes: Uint8Array): string =>
+  btoa(Array.from(bytes, (x) => String.fromCodePoint(x)).join(''));
+
+/**
+ * Calculate a 32 bit FNV-1a hash
+ * Found here: https://gist.github.com/vaiorabbit/5657561
+ * Ref.: http://isthe.com/chongo/tech/comp/fnv/
+ *
+ * @param str Input string to hash
+ * @param seed The seed. By default `0x811c9dc5` is used.
+ * @returns The FNV-1a hash in a 32bit number.
+ */
+export const hashFnv32a = (str: string, seed?: number): number => {
+  /*jshint bitwise:false */
+  let hval = seed ?? 0x811c9dc5;
+
+  for (let i = 0, l = str.length; i < l; i++) {
+    hval ^= str.charCodeAt(i);
+    hval += (hval << 1) + (hval << 4) + (hval << 7) + (hval << 8) + (hval << 24);
+  }
+  return hval >>> 0;
+};
+
+/**
+ * callCC provides a way to escape from the inner program.
+ * Different from the "real" call/CC, the CC is only valid before the callee finishes.
+ * @param callback the inner program, with an argument `exit`, which can be used to escape early.
+ * @returns the result of the inner program if `exit` is not called. Otherwise, the argument of `exit`.
+ */
+export function callCC<T>(callback: (exit: (result: T) => void) => T): T {
+  const callCCBox = Symbol();
+  try {
+    return callback((result: T) => {
+      throw { callCCBox, result };
+    });
+  } catch (e) {
+    const errBox = e as { callCCBox?: symbol; result?: T };
+    if (errBox?.callCCBox == callCCBox) {
+      return errBox!.result!;
+    }
+    throw e;
+  }
+}

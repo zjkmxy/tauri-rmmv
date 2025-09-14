@@ -55,7 +55,7 @@ export class JsonEx {
    * @type Number
    * @default 100
    */
-  static maxDepth = 100;
+  static maxDepth: number = 100;
 
   protected static _id = 1;
 
@@ -152,7 +152,7 @@ export class JsonEx {
    * @return {String}
    * @private
    */
-  private static _getConstructorName(value: object) {
+  private static _getConstructorName(value: object): string | undefined {
     if (!value.constructor) {
       return undefined;
     }
@@ -288,7 +288,7 @@ export class JsonEx {
    * @param {Object} object The object to be converted
    * @return {String} The JSON string
    */
-  public static stringify(obj: object) {
+  public static stringify(obj: object): string {
     const circulars: Array<Circular> = [];
     const json = JSON.stringify(
       this._encode(obj, {

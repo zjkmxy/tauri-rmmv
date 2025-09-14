@@ -94,7 +94,7 @@ export class Scene_Base extends Stage {
    * @memberof Scene_Base
    * @return {Boolean} return true if the scene is active
    */
-  public isActive() {
+  public isActive(): boolean {
     return this._active;
   }
 
@@ -106,7 +106,7 @@ export class Scene_Base extends Stage {
    * @memberof Scene_Base
    * @return {Boolean} Return true if the scene is ready to start
    */
-  public isReady() {
+  public isReady(): boolean {
     return this._createDone && ImageManager.isReady();
   }
 
@@ -221,7 +221,7 @@ export class Scene_Base extends Stage {
    * @instance
    * @memberof Scene_Base
    */
-  public startFadeIn(duration = 30, white = false): Promise<void> {
+  public startFadeIn(duration: number = 30, white: boolean = false): Promise<void> {
     this.createFadeSprite(white);
     // this._fadeSign = 1;
     // this._fadeDuration = duration;
@@ -243,7 +243,7 @@ export class Scene_Base extends Stage {
    * @instance
    * @memberof Scene_Base
    */
-  public startFadeOut(duration = 30, white = false): Promise<void> {
+  public startFadeOut(duration: number = 30, white: boolean = false): Promise<void> {
     this.createFadeSprite(white);
     // this._fadeSign = -1;
     // this._fadeDuration = duration;
@@ -352,7 +352,7 @@ export class Scene_Base extends Stage {
    * @memberof Scene_Base
    * @return {Number} Return the fade speed
    */
-  public fadeSpeed() {
+  public fadeSpeed(): number {
     return 24;
   }
 
@@ -364,7 +364,7 @@ export class Scene_Base extends Stage {
    * @memberof Scene_Base
    * @return {Number} Return the fade speed
    */
-  public slowFadeSpeed() {
+  public slowFadeSpeed(): number {
     return this.fadeSpeed() * 2;
   }
 
